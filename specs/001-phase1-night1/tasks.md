@@ -62,20 +62,20 @@ description: "Nhiệm vụ triển khai Phase 1 — Đêm 1 · Đảo Bến"
 
 **Kiểm chứng độc lập US5**: scenario 5 đèn đã thắp tạo JSONL `won/all_lit` tick 1; chạy giao diện, quan sát HUD/ánh sáng, chơi đến kết thúc và nhấn R để reset seed mới.
 
-- [ ] T023 [P] [US5] Tạo `src/web/scene.ts`, `src/web/characters.ts` dựng đảo, Mây nón lá treo đèn, shade tím đen, đèn vàng cam và ánh sáng đảo tăng khi thắp; kiểm chứng: `npm run play` và quan sát cảnh trên trình duyệt.
-- [ ] T024 [P] [US5] Tạo `src/web/input.ts`, `src/web/camera.ts` cho camera theo sau/xoay, WASD theo camera, Space/E/Q và R; kiểm chứng: `npm run play` và thao tác từng phím.
-- [ ] T025 [P] [US5] Tạo `src/web/hud.ts`, `src/web/style.css` cho lửa, carried/capacity, đèn, thời gian, điểm, hồi chiêu và màn thắng/thua, nút chơi lại; kiểm chứng: `npm run play` và quan sát đủ trạng thái.
-- [ ] T026 [US5] Tạo `src/web/main.ts`, `index.html` tích hợp cảnh, input, HUD với cùng `core.step()` mỗi bước 1/60 giây, chơi lại seed mới; tạo `tests/contract/cases/FR-010-ui-win.test.ts` cho scenario 5 đèn lit. Kiểm chứng: `npm run build && npm test`, sau đó `npm run play` và chơi đến thắng/thua, nhấn R.
+- [x] T023 [P] [US5] Tạo `src/web/scene.ts`, `src/web/characters.ts` dựng đảo, Mây nón lá treo đèn, shade tím đen, đèn vàng cam và ánh sáng đảo tăng khi thắp; kiểm chứng: `npm run play` và quan sát cảnh trên trình duyệt.
+- [x] T024 [P] [US5] Tạo `src/web/input.ts`, `src/web/camera.ts` cho camera theo sau/xoay, WASD theo camera, Space/E/Q và R; kiểm chứng: `npm run play` và thao tác từng phím.
+- [x] T025 [P] [US5] Tạo `src/web/hud.ts`, `src/web/style.css` cho lửa, carried/capacity, đèn, thời gian, điểm, hồi chiêu và màn thắng/thua, nút chơi lại; kiểm chứng: `npm run play` và quan sát đủ trạng thái.
+- [x] T026 [US5] Tạo `src/web/main.ts`, `index.html` tích hợp cảnh, input, HUD với cùng `core.step()` mỗi bước 1/60 giây, chơi lại seed mới; tạo `tests/contract/cases/FR-010-ui-win.test.ts` cho scenario 5 đèn lit. Kiểm chứng: `npm run build && npm test`, sau đó `npm run play` và chơi đến thắng/thua, nhấn R.
 
 ## Nhóm 4 — Bàn giao
 
-- [ ] T027 Tạo `scripts/verify.mjs` và kết nối `package.json` để `npm run verify` chạy test và lưu log/JSONL thật vào `docs/proof/phase-1/`, mã lỗi khác 0 khi test lỗi; kiểm chứng: `npm run verify` và xem log thực tế.
-- [ ] T028 [P] Tạo `docs/proof/traceability.md` liên kết từng FR tới scenario/test hoặc ảnh, thao tác kiểm tra và kết quả đạt/chưa đạt; kiểm chứng: `npm run verify` rồi đối chiếu các đường dẫn bằng chứng và kiểm tra thủ công các FR giao diện/bàn giao.
-- [ ] T029 [P] Bổ sung `docs/notes/ai-log.md`, `docs/notes/retro.md`, cập nhật `docs/notes/assumptions.md` với giả định, lỗi AI, ước tính token/chi phí, đánh giá Phase 1; kiểm chứng: `node -e "for(const f of ['ai-log.md','retro.md','assumptions.md'])require('fs').accessSync('docs/notes/'+f)"` và đọc nội dung.
-- [ ] T030 [P] Viết `README.md` với cài/chạy ≤ 3 lệnh, điều khiển, cách tính điểm, test/headless, `fall_enabled=false`, giá trị null/false, mục “Sáng tạo của tôi” và bằng chứng; kiểm chứng: clone sạch theo README, chạy `npm ci && npm run build`, `npm run play`, `npm test` trên macOS/Linux.
-- [ ] T031 [P] Tạo `LICENSE`, `CREDITS.md` ghi giấy phép và nguồn asset/công cụ AI thực tế; kiểm chứng: `node -e "for(const f of ['LICENSE','CREDITS.md'])require('fs').accessSync(f)"` và đối chiếu nguồn.
-- [ ] T032 Đo đúng 18.000 bước không kết thúc sớm, ghi thời gian thực và cấu hình máy tại `docs/proof/phase-1/perf.md`; kiểm chứng: `npm run contract -- performance`, xác nhận `end.ticks=18000` và thời gian < 2 s; ghi chưa đạt trung thực nếu vượt.
-- [ ] T033 Kiểm tra đầy đủ `docs/proof/traceability.md`, output của `npm run verify`, `README.md`, CI và hook từ clone sạch; kiểm chứng: `npm ci && npm run build && npm test && npm run verify`; yêu cầu người hoặc phiên review khác kiểm tra kết quả, ghi rõ sai lệch constitution và mục chưa đạt.
+- [x] T027 Tạo `scripts/verify.mjs` và kết nối `package.json` để `npm run verify` chạy test và lưu log/JSONL thật vào `docs/proof/phase-1/`, mã lỗi khác 0 khi test lỗi; kiểm chứng: `npm run verify` và xem log thực tế.
+- [x] T028 [P] Tạo `docs/proof/traceability.md` liên kết từng FR tới scenario/test hoặc ảnh, thao tác kiểm tra và kết quả đạt/chưa đạt; kiểm chứng: `npm run verify` rồi đối chiếu các đường dẫn bằng chứng và kiểm tra thủ công các FR giao diện/bàn giao.
+- [x] T029 [P] Bổ sung `docs/notes/ai-log.md`, `docs/notes/retro.md`, cập nhật `docs/notes/assumptions.md` với giả định, lỗi AI, ước tính token/chi phí, đánh giá Phase 1; kiểm chứng: `node -e "for(const f of ['ai-log.md','retro.md','assumptions.md'])require('fs').accessSync('docs/notes/'+f)"` và đọc nội dung.
+- [x] T030 [P] Viết `README.md` với cài/chạy ≤ 3 lệnh, điều khiển, cách tính điểm, test/headless, `fall_enabled=false`, giá trị null/false, mục “Sáng tạo của tôi” và bằng chứng; kiểm chứng: clone sạch theo README, chạy `npm ci && npm run build`, `npm run play`, `npm test` trên macOS/Linux.
+- [x] T031 [P] Tạo `LICENSE`, `CREDITS.md` ghi giấy phép và nguồn asset/công cụ AI thực tế; kiểm chứng: `node -e "for(const f of ['LICENSE','CREDITS.md'])require('fs').accessSync(f)"` và đối chiếu nguồn.
+- [x] T032 Đo đúng 18.000 bước không kết thúc sớm, ghi thời gian thực và cấu hình máy tại `docs/proof/phase-1/perf.md`; kiểm chứng: `npm run contract -- performance`, xác nhận `end.ticks=18000` và thời gian < 2 s; ghi chưa đạt trung thực nếu vượt.
+- [x] T033 Kiểm tra đầy đủ `docs/proof/traceability.md`, output của `npm run verify`, `README.md`, CI và hook từ clone sạch; kiểm chứng: `npm ci && npm run build && npm test && npm run verify`; yêu cầu người hoặc phiên review khác kiểm tra kết quả, ghi rõ sai lệch constitution và mục chưa đạt.
 - [ ] T034 [US5] **Tùy chọn, cuối cùng**: thêm một điểm sáng tạo gọn trong `src/web/` và mô tả/bằng chứng trong `README.md`; đảm bảo không ảnh hưởng headless. Kiểm chứng: `npm test` và so byte JSONL cùng seed/scenario/inputs trước và sau thay đổi.
 
 ## Phụ thuộc và thứ tự

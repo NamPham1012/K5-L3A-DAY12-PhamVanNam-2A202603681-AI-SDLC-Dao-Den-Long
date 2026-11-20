@@ -15,3 +15,7 @@
 ## Nguyên tắc hoàn thành
 - Luôn chạy `npm test` và đảm bảo 100% test xanh trước khi báo xong.
 - Cùng seed, scenario, inputs phải sinh file JSONL giống hệt từng byte.
+
+## Điều cấm
+- Không sửa `docs/proof/**/review-*.md` (do reviewer độc lập viết).
+- Không ghi ĐẠT trong traceability nếu chưa có bằng chứng chạy thật (log, JSONL, ảnh).
