@@ -7,6 +7,8 @@ import { RenderEntities } from './characters.js';
 import { InputManager } from './input.js';
 import { HudOverlay } from './hud.js';
 import { MenuOverlay } from './menu.js';
+import { loadSettings, saveSettings, GameSettings } from './settings.js';
+import { GameAudio } from './audio.js';
 import './style.css';
 
 type ScreenMode = 'menu' | 'intro' | 'playing' | 'result';
@@ -19,6 +21,8 @@ class GameApp {
   private input: InputManager;
   private hud: HudOverlay;
   private menu: MenuOverlay;
+  private settings: GameSettings = loadSettings();
+  private audio = new GameAudio();
 
   private world!: World;
   private currentNight: 1 | 2 | 3 = 1;
@@ -54,7 +58,16 @@ class GameApp {
         this.openIntro(next);
       },
       onBackToMenu: () => this.goToMainMenu(),
-    });
+      onSettingsChange: (settings) => {
+        this.settings = settings;
+        saveSettings(settings);
+        this.input.sensitivity = settings.sensitivity;
+        this.audio.setVolume(settings.volume);
+        document.body.classList.toggle('colorblind-mode', settings.colorblind);
+      },
+    }, this.settings);
+    window.addEventListener('pointerdown', () => this.audio.unlock(), { once: true });
+    window.addEventListener('keydown', () => this.audio.unlock(), { once: true });
 
     window.addEventListener('resize', () => {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -144,6 +157,7 @@ class GameApp {
         if (this.world.state === 'playing' || this.world.state === 'paused') {
           const inputFrame = this.input.pollInput();
           this.world.step(inputFrame);
+          for (const event of this.world.events) this.audio.cue(event.name);
         }
         this.accumulator -= this.FIXED_STEP;
       }
@@ -201,7 +215,8 @@ class GameApp {
       this.world.player,
       this.world.lanterns,
       this.world.tuning.safe_radius,
-      animClock
+      animClock,
+      this.settings.colorblind
     );
     this.entities.syncDrifters(this.world.drifters, this.world.player, animClock);
     this.entities.syncCharms(this.world.charms, animClock);

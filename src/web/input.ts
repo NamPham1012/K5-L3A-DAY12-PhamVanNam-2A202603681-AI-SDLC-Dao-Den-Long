@@ -3,6 +3,7 @@ import { InputState, Vec2 } from '../core/entities.js';
 export class InputManager {
   private keys: Set<string> = new Set();
   public yawDeg: number = 0;
+  public sensitivity: number = 1;
   private isPointerLocked: boolean = false;
   public resetTriggered: boolean = false;
   private pausePulsePending: boolean = false;
@@ -42,7 +43,7 @@ export class InputManager {
     document.addEventListener('mousemove', (e) => {
       if (this.activeGameplay && this.isPointerLocked) {
         // Giữ nguyên chiều xoay chuột
-        this.yawDeg -= e.movementX * 0.15;
+        this.yawDeg -= e.movementX * 0.15 * this.sensitivity;
       }
     });
   }

@@ -1,3 +1,5 @@
+import { GameSettings } from './settings.js';
+
 export interface NightMeta {
   night: 1 | 2 | 3;
   title: string;
@@ -36,6 +38,7 @@ export interface MenuCallbacks {
   onRetryNight: () => void;
   onNextNight: () => void;
   onBackToMenu: () => void;
+  onSettingsChange: (settings: GameSettings) => void;
 }
 
 export class MenuOverlay {
@@ -52,8 +55,10 @@ export class MenuOverlay {
   private resultTotalEl: HTMLElement;
   private btnNextEl: HTMLButtonElement;
   private btnRetryEl: HTMLButtonElement;
+  private settingsEl: HTMLElement;
+  private settingsReturn: 'menu' | 'pause' = 'menu';
 
-  constructor(cb: MenuCallbacks) {
+  constructor(cb: MenuCallbacks, settings: GameSettings) {
     this.root = document.createElement('div');
     this.root.id = 'ui-overlays';
     this.root.innerHTML = `
@@ -66,6 +71,7 @@ export class MenuOverlay {
             <button id="btn-night-1" class="ui-btn primary">Đêm 1 — Đảo Bến (5 đèn)</button>
             <button id="btn-night-2" class="ui-btn">Đêm 2 — Đảo Cau (6 đèn)</button>
             <button id="btn-night-3" class="ui-btn">Đêm 3 — Đảo Chuông (7 đèn)</button>
+            <button id="btn-menu-settings" class="ui-btn">Cài đặt</button>
           </div>
           <div class="controls-hint">
             WASD: Đi · Chuột: Xoay · Space: Nhảy · Shift: Lướt · E: Nạp · Q: Tỏa Sáng · Esc/P: Tạm dừng
@@ -93,8 +99,21 @@ export class MenuOverlay {
           <div class="btn-group">
             <button id="btn-pause-resume" class="ui-btn primary">Tiếp tục</button>
             <button id="btn-pause-retry" class="ui-btn">Chơi lại Đêm</button>
+            <button id="btn-pause-settings" class="ui-btn">Cài đặt</button>
             <button id="btn-pause-menu" class="ui-btn secondary">Về menu</button>
           </div>
+        </div>
+      </div>
+
+      <div id="overlay-settings" class="modal-overlay hidden">
+        <div class="modal-box settings-box" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+          <h1 id="settings-title">Cài đặt</h1>
+          <label for="settings-volume">Âm lượng <output id="settings-volume-value"></output></label>
+          <input id="settings-volume" type="range" min="0" max="1" step="0.05">
+          <label for="settings-sensitivity">Độ nhạy chuột <output id="settings-sensitivity-value"></output></label>
+          <input id="settings-sensitivity" type="range" min="0.25" max="2" step="0.05">
+          <label class="settings-checkbox"><input id="settings-colorblind" type="checkbox"> Bảng màu dễ phân biệt</label>
+          <button id="btn-settings-back" class="ui-btn primary">Quay lại</button>
         </div>
       </div>
 
@@ -120,6 +139,7 @@ export class MenuOverlay {
     this.introQuoteEl = document.getElementById('intro-quote')!;
     this.pauseEl = document.getElementById('overlay-pause')!;
     this.resultEl = document.getElementById('overlay-result')!;
+    this.settingsEl = document.getElementById('overlay-settings')!;
     this.resultBoxEl = document.getElementById('result-box')!;
     this.resultTitleEl = document.getElementById('result-title')!;
     this.resultDescEl = document.getElementById('result-desc')!;
@@ -135,6 +155,21 @@ export class MenuOverlay {
     document.getElementById('btn-pause-resume')!.addEventListener('click', () => cb.onResume());
     document.getElementById('btn-pause-retry')!.addEventListener('click', () => cb.onRetryNight());
     document.getElementById('btn-pause-menu')!.addEventListener('click', () => cb.onBackToMenu());
+    const volume = document.getElementById('settings-volume') as HTMLInputElement;
+    const sensitivity = document.getElementById('settings-sensitivity') as HTMLInputElement;
+    const colorblind = document.getElementById('settings-colorblind') as HTMLInputElement;
+    volume.value = String(settings.volume); sensitivity.value = String(settings.sensitivity); colorblind.checked = settings.colorblind;
+    const updateSettings = () => {
+      const next = { volume: Number(volume.value), sensitivity: Number(sensitivity.value), colorblind: colorblind.checked };
+      document.getElementById('settings-volume-value')!.textContent = `${Math.round(next.volume * 100)}%`;
+      document.getElementById('settings-sensitivity-value')!.textContent = `${next.sensitivity.toFixed(2)}×`;
+      cb.onSettingsChange(next);
+    };
+    volume.addEventListener('input', updateSettings); sensitivity.addEventListener('input', updateSettings); colorblind.addEventListener('change', updateSettings);
+    updateSettings();
+    document.getElementById('btn-menu-settings')!.addEventListener('click', () => this.showSettings('menu'));
+    document.getElementById('btn-pause-settings')!.addEventListener('click', () => this.showSettings('pause'));
+    document.getElementById('btn-settings-back')!.addEventListener('click', () => this.settingsReturn === 'menu' ? this.showMainMenu() : this.showPause());
     this.btnNextEl.addEventListener('click', () => cb.onNextNight());
     this.btnRetryEl.addEventListener('click', () => cb.onRetryNight());
     document.getElementById('btn-result-menu')!.addEventListener('click', () => cb.onBackToMenu());
@@ -145,6 +180,14 @@ export class MenuOverlay {
     this.introEl.classList.add('hidden');
     this.pauseEl.classList.add('hidden');
     this.resultEl.classList.add('hidden');
+    this.settingsEl.classList.add('hidden');
+  }
+
+  private showSettings(from: 'menu' | 'pause'): void {
+    this.settingsReturn = from;
+    this.hideAll();
+    this.settingsEl.classList.remove('hidden');
+    (document.getElementById('settings-volume') as HTMLInputElement).focus();
   }
 
   public showMainMenu(): void {
@@ -195,7 +238,7 @@ export class MenuOverlay {
       this.btnRetryEl.classList.add('hidden');
     } else {
       this.resultTitleEl.textContent = `THẤT BẠI — ĐÊM ${opts.night}`;
-      this.resultTitleEl.style.color = '#FF5A5F';
+      this.resultTitleEl.style.color = 'var(--warning-color)';
       this.resultDescEl.textContent = `Lý do: ${opts.lossReason ?? 'Hết Ngọn Lửa'}. Điểm: ${opts.nightScore}`;
       this.resultTotalEl.textContent = `Tổng điểm tích lũy: ${opts.totalScore}`;
       this.btnNextEl.classList.add('hidden');

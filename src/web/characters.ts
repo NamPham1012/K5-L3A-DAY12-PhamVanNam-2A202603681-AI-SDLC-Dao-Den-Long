@@ -7,6 +7,9 @@ interface LanternVisual {
   light: THREE.PointLight;
   mesh: THREE.Mesh;
   halo: THREE.Sprite;
+  fuelBack: THREE.Sprite;
+  fuelFill: THREE.Sprite;
+  tear: THREE.Line;
 }
 
 interface ShadeVisual {
@@ -236,20 +239,52 @@ export class RenderEntities {
         halo.scale.set(6.5, 6.5, 1);
         group.add(halo);
 
+        const fuelBack = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0x181d2b, depthTest: false }));
+        fuelBack.position.y = 5.25;
+        fuelBack.scale.set(1.8, 0.26, 1);
+        fuelBack.renderOrder = 10;
+        group.add(fuelBack);
+        const fuelFill = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0xffb347, depthTest: false }));
+        fuelFill.position.set(0, 5.25, 0);
+        fuelFill.renderOrder = 11;
+        group.add(fuelFill);
+
+        const tear = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(-0.18, 0.5, 0.53), new THREE.Vector3(0.03, 0.24, 0.72),
+            new THREE.Vector3(-0.08, 0.03, 0.75), new THREE.Vector3(0.18, -0.26, 0.68),
+          ]),
+          new THREE.LineBasicMaterial({ color: 0x18131a })
+        );
+        mesh.add(tear);
+
         this.scene.add(group);
-        entry = { group, light, mesh, halo };
+        entry = { group, light, mesh, halo, fuelBack, fuelFill, tear };
         this.lanternMeshes.set(l.id, entry);
       }
 
       const mat = entry.mesh.material as THREE.MeshStandardMaterial;
       const haloMat = entry.halo.material as THREE.SpriteMaterial;
+      entry.group.position.set(l.pos[0], l.pos[1], l.pos[2]);
+      entry.mesh.scale.set(1, l.lit ? 1 : 0.8, 1);
+      entry.tear.visible = !l.lit;
+      entry.fuelBack.visible = l.lit;
+      entry.fuelFill.visible = l.lit;
+      const ratio = Math.max(0, Math.min(1, l.fuel_u / 6000));
+      entry.fuelFill.scale.set(1.68 * ratio, 0.15, 1);
+      entry.fuelFill.material.color.setHex(l.fuel_u < 1800 ? 0xff5a5f : 0xffb347);
+      const lowFuelBlink = l.fuel_u < 1800 && Math.sin(animTime * Math.PI * 2) < 0;
+      entry.fuelBack.material.opacity = lowFuelBlink ? 0.3 : 1;
+      entry.fuelFill.material.opacity = lowFuelBlink ? 0.3 : 1;
+      entry.fuelBack.material.transparent = true;
+      entry.fuelFill.material.transparent = true;
       if (l.lit) {
-        const flicker = 1 + Math.sin(animTime * 5.0 + hashIdToPhase(l.id)) * 0.08;
+        const flicker = (1 + Math.sin(animTime * 5.0 + hashIdToPhase(l.id)) * 0.08) * (lowFuelBlink ? 0.3 : 1);
         mat.color.setHex(0xffe9b0);
         mat.emissive.setHex(0xffb347);
         mat.emissiveIntensity = 1.5 * flicker;
         entry.light.intensity = 5.5 * flicker;
-        haloMat.opacity = 0.85;
+        haloMat.opacity = lowFuelBlink ? 0.25 : 0.85;
         const haloScale = 6.8 * flicker;
         entry.halo.scale.set(haloScale, haloScale, 1);
       } else {
@@ -268,7 +303,8 @@ export class RenderEntities {
     player: Player,
     lanterns: Lantern[],
     safeRadius: number,
-    animTime: number
+    animTime: number,
+    colorblind = false
   ): void {
     const activeIds = new Set(shades.map((s) => s.id));
     const litLanterns = lanterns.filter((l) => l.lit);
@@ -360,23 +396,24 @@ export class RenderEntities {
         entry.body.scale.set(0.72, 0.72, 0.72);
         entry.leftEye.scale.set(1.1, 0.15, 1);
         entry.rightEye.scale.set(1.1, 0.15, 1);
-        leftEyeMat.color.setHex(0x666677);
-        rightEyeMat.color.setHex(0x666677);
+        leftEyeMat.color.setHex(colorblind ? 0x00b3ff : 0x666677);
+        rightEyeMat.color.setHex(colorblind ? 0x00b3ff : 0x666677);
         for (const puff of entry.smokePuffs) puff.visible = false;
       } else {
         const pulse = Math.sin(animTime * 5.2 + entry.phase);
         const sx = 1.0 + pulse * 0.09;
         const sy = 1.0 - pulse * 0.11;
         bodyMat.color.setHex(0x120a1a);
-        bodyMat.emissive.setHex(0x7a3cff);
+        bodyMat.emissive.setHex(colorblind ? 0x00b3ff : 0x7a3cff);
         bodyMat.emissiveIntensity = s.state === 'chase' ? 0.75 : 0.45;
         entry.body.scale.set(sx, sy, sx);
         entry.leftEye.scale.set(1, 1, 1);
         entry.rightEye.scale.set(1, 1, 1);
-        leftEyeMat.color.setHex(0xffffff);
-        rightEyeMat.color.setHex(0xffffff);
+        leftEyeMat.color.setHex(colorblind ? 0x00b3ff : 0xffffff);
+        rightEyeMat.color.setHex(colorblind ? 0x00b3ff : 0xffffff);
         for (let k = 0; k < entry.smokePuffs.length; k++) {
           const puff = entry.smokePuffs[k];
+          (puff.material as THREE.MeshBasicMaterial).color.setHex(colorblind ? 0x00b3ff : 0x7a3cff);
           puff.visible = true;
           puff.position.x = Math.sin(animTime * 6 + entry.phase + k * 1.1) * 0.12;
           puff.position.y = Math.cos(animTime * 4 + k) * 0.08;

@@ -74,9 +74,10 @@ export class HudOverlay {
     }
 
     const litCount = world.lanterns.filter((l) => l.lit).length;
-    this.lanternsEl.textContent = `${litCount}/${world.lanterns.length}`;
+    const threshold = Math.ceil(world.tuning.win_ratio * world.lanterns.length);
+    this.lanternsEl.textContent = `${litCount}/${threshold} đèn cần sáng`;
     this.scoreEl.textContent = String(world.score);
-    this.motesEl.textContent = `${p.carried}/${world.tuning.carry_capacity}`;
+    this.motesEl.textContent = `${p.carried}/${Math.min(world.tuning.capacity_max, world.tuning.carry_capacity + 2 * p.successful_lights)}`;
 
     // Hồi chiêu Lướt (Shift)
     if (p.charm_ticks > 0) {
@@ -84,7 +85,7 @@ export class HudOverlay {
       this.dashEl.style.color = '#F2C14E';
     } else if (p.dash_cd_ticks > 0) {
       this.dashEl.textContent = `${(p.dash_cd_ticks / 60).toFixed(1)}s`;
-      this.dashEl.style.color = '#FF5A5F';
+      this.dashEl.style.color = 'var(--warning-color)';
     } else {
       this.dashEl.textContent = 'SẴN SÀNG';
       this.dashEl.style.color = '#FFE9B0';
@@ -93,7 +94,7 @@ export class HudOverlay {
     // Hồi chiêu Tỏa Sáng (Q)
     if (p.pulse_cd_ticks > 0) {
       this.pulseEl.textContent = `${(p.pulse_cd_ticks / 60).toFixed(1)}s`;
-      this.pulseEl.style.color = '#FF5A5F';
+      this.pulseEl.style.color = 'var(--warning-color)';
     } else if (p.carried < world.tuning.pulse_cost) {
       this.pulseEl.textContent = `Cần ${world.tuning.pulse_cost} ✨`;
       this.pulseEl.style.color = '#aaaaaa';
@@ -105,13 +106,13 @@ export class HudOverlay {
     // Nhắc nạp đèn khi đứng trong bán kính tương tác của đèn chưa sáng
     const rSq = world.tuning.interact_radius * world.tuning.interact_radius;
     const nearUnlit = world.lanterns.find((l) => {
-      if (l.lit) return false;
+      if (l.lit && l.fuel_u >= world.tuning.fuel_max * 60) return false;
       const dx = p.pos[0] - l.pos[0];
       const dz = p.pos[2] - l.pos[2];
       return dx * dx + dz * dz <= rSq;
     });
     if (nearUnlit && world.state === 'playing') {
-      this.promptEl.textContent = `E — Nạp ánh sáng (${nearUnlit.deposited}/${world.tuning.lantern_cost})`;
+      this.promptEl.textContent = nearUnlit.lit ? `E — Châm dầu (${(nearUnlit.fuel_u / 60).toFixed(0)}%)` : `E — Nạp ánh sáng (${nearUnlit.deposited}/${nearUnlit.ever_lit ? world.tuning.relight_cost : world.tuning.lantern_cost})`;
       this.promptEl.classList.remove('hidden');
     } else {
       this.promptEl.classList.add('hidden');

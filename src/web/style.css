@@ -5,12 +5,17 @@
 }
 
 body {
+  --warning-color: #ff5a5f;
   overflow: hidden;
   background-color: #0e1430;
   color: #f5f1e6;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   user-select: none;
 }
+
+body.colorblind-mode { --warning-color: #ffffff; }
+body.colorblind-mode .danger-blink::before { content: '⚠ '; }
+body.colorblind-mode .danger-blink { border-style: dashed; }
 
 canvas {
   display: block;
@@ -77,10 +82,19 @@ canvas {
 }
 
 .danger-blink {
-  border-color: #ff5a5f !important;
-  color: #ff5a5f !important;
+  border-color: var(--warning-color) !important;
+  color: var(--warning-color) !important;
   animation: pulseDanger 0.8s infinite alternate;
 }
+
+.settings-box { text-align: left; }
+.settings-box h1 { text-align: center; }
+.settings-box label:not(.settings-checkbox) { display: flex; justify-content: space-between; margin: 18px 0 8px; }
+.settings-box input[type='range'] { width: 100%; accent-color: #f2c14e; }
+.settings-checkbox { display: flex; align-items: center; gap: 10px; margin: 22px 0; }
+.settings-checkbox input { width: 20px; height: 20px; accent-color: #f2c14e; }
+.settings-box .ui-btn { width: 100%; }
+.ui-btn:focus-visible, .settings-box input:focus-visible { outline: 3px solid #fff6c2; outline-offset: 3px; }
 
 @keyframes pulseDanger {
   from {
