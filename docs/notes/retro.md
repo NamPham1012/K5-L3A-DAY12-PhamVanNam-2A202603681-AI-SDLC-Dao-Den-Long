@@ -33,3 +33,19 @@
 ## Hạn chế & Việc còn lại
 1. **Nhóm C (Web Phase 2) chưa triển khai**: Menu chuỗi 3 Đêm, Pause menu, cài đặt lưu `localStorage`, âm thanh WebAudio, HUD bố cục mới, bảng màu chuẩn và đo FPS ≥ 30 ở 1280×720 hiện đang ghi trung thực là **CHƯA ĐẠT** trong `docs/proof/traceability.md`.
 2. **Giả định ★ chưa xác nhận**: Các điểm đánh dấu ★ trong `specs/002-phase2-three-nights/spec.md` (như thời lượng `spawning`, kiểu `invuln`, điểm xuất phát Đêm 3, `night_start` tick 0) cần đối chiếu nếu giảng viên công bố bản đính chính.
+
+---
+
+# Đánh giá — Phase 3
+
+## Điều làm tốt
+
+- Ticket-03 được ghi nhận trong ADR-001; dầu dùng đơn vị nguyên 1/60 giúp kiểm tra hao theo tick mà không tích lũy sai số số thực.
+- Test CLI và [review hộp đen độc lập](../proof/phase-3/review-blackbox.md) kiểm tra các kịch bản hao dầu, thắp lại, hút dầu và kết thúc lúc bình minh.
+- Test Phase 1–2 bị thay luật được cập nhật kèm lý do trong `docs/notes/phase3-changes.md`, không skip.
+
+## Lỗi và việc còn lại
+
+- Ví dụ #3 và #8 của spec ban đầu bỏ qua hao dầu ở bước 2. Agent implement phát hiện khi test; spec và kỳ vọng đã được sửa theo ticket, kèm unit test cho đèn thực sự đầy dầu.
+- Nhóm web Phase 3 chưa triển khai: thanh dầu, bảng màu dễ phân biệt và HUD mới **CHƯA ĐẠT**. Một số biên của lõi vẫn cần bằng chứng bổ sung theo traceability.
+- Chưa có số token/chi phí Phase 3 được xác minh; bổ sung số thực tế vào `docs/notes/ai-log.md` khi có thống kê.

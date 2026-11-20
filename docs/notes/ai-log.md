@@ -75,6 +75,8 @@
 
 # Nhật ký AI — Phase 3
 
+- Claude soạn spec và ADR-001 trực tiếp từ Ticket-03 trong thời gian Phase 3 khoảng 30 phút; agent implement triển khai và chạy test CLI.
+
 ## Lỗi spec do Claude, agent implement phát hiện
 
 - Spec do Claude soạn có ví dụ acceptance #3 và #8 bỏ qua dầu hao ở bước 2 trước tương tác và xét bình minh.

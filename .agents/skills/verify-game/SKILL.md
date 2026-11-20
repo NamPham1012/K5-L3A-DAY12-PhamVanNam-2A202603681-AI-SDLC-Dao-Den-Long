@@ -1,14 +1,16 @@
 ---
 name: verify-game
-description: Chạy kiểm thử tự động 3 Đêm (Contract v1.1), so SHA-256 tất định và lưu bằng chứng thật vào docs/proof/phase-2/
+description: Chạy kiểm thử Contract v1.2, scenario FR3 và kiểm tra tính tất định của Đảo Đèn Lồng.
 ---
 
-# Verify Game Skill (Phase 2 · Contract v1.1)
+# Verify Game Skill (Phase 3 · Contract v1.2)
 
-Skill này thực hiện kiểm chứng tự động cho Đảo Đèn Lồng Phase 2 (3 Đêm, Contract v1.1) và ghi bằng chứng thật vào `docs/proof/phase-2/` mà không xoá bằng chứng Phase 1.
+Skill này kiểm chứng Đảo Đèn Lồng Phase 3 và lưu bằng chứng thật vào `docs/proof/phase-3/`, giữ nguyên bằng chứng cũ.
 
 ## Các bước thực hiện
-1. Chạy `npm run build` và `npm test` (unit + contract v1.1 + hồi quy Phase 1), lưu log đầy đủ vào `docs/proof/phase-2/test.log`.
-2. Chạy headless trên cả 3 Đêm (`--night 1`, `--night 2`, `--night 3`) hai lần cùng seed, so SHA-256 từng byte và lưu JSONL mẫu + bảng băm vào `docs/proof/phase-2/night{1,2,3}.jsonl` và `docs/proof/phase-2/determinism-sha256.txt`.
-3. Chạy benchmark 21.600 tick không kết thúc sớm (Đêm 3) và ghi thời gian thực, `end.ticks` cùng cấu hình máy vào `docs/proof/phase-2/perf.md` (ngưỡng ≤ 30 giây).
-4. Báo cáo trung thực: nếu bất kỳ kiểm tra nào thất bại phải trả mã thoát khác 0, in đầy đủ stderr và không ghi ĐẠT cho mục chưa có bằng chứng.
+1. Chạy `npm test` (build, unit, contract v1.2 và hồi quy); lưu output thật vào `docs/proof/phase-3/test.log`.
+2. Chạy riêng `npm run contract -- FR3-acceptance` để kiểm tra các scenario FR3 qua CLI thật; lưu output vào `docs/proof/phase-3/fr3-test.log`.
+3. Chạy headless trên cả 3 Đêm hai lần cùng seed, scenario và inputs; so SHA-256 từng byte, lưu JSONL và bảng băm vào `docs/proof/phase-3/`.
+4. Báo cáo trung thực: nếu kiểm tra thất bại phải trả mã khác 0, giữ stderr; không ghi ĐẠT khi chưa có bằng chứng. Không sửa `review-*.md`.
+
+Lưu ý: `npm run verify` hiện vẫn ghi vào `docs/proof/phase-2/`; không dùng lệnh đó như bằng chứng verify Phase 3 cho tới khi script được cập nhật.

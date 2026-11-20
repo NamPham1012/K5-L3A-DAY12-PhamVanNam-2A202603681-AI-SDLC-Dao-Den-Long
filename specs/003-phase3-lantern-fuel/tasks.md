@@ -19,5 +19,5 @@ Spec: `spec.md`. ADR: `docs/adr/ADR-001-lantern-fuel-dawn-win.md`. Thứ tự b�
 - [ ] T012 HUD: carried/capacity, đèn sáng/ngưỡng thắng.
 
 ## Nhóm C — Bàn giao
-- [ ] T013 AGENTS.md: contract v1.2, "luật thắng mới", "dầu là số nguyên 1/60"; skill verify chạy scenario FR3.
-- [ ] T014 traceability Phase 3, ai-log (Claude soạn spec/ADR do 30 phút), retro Phase 3.
+- [X] T013 AGENTS.md: contract v1.2, "luật thắng mới", "dầu là số nguyên 1/60"; skill verify chạy scenario FR3.
+- [X] T014 traceability Phase 3, ai-log (Claude soạn spec/ADR do 30 phút), retro Phase 3.

@@ -1,4 +1,4 @@
-# Hướng dẫn Agent — Đảo Đèn Lồng (Phase 2 · Contract v1.1)
+# Hướng dẫn Agent — Đảo Đèn Lồng (Phase 3 · Contract v1.2)
 
 ## Lệnh vận hành
 - Cài đặt & Build: `npm ci && npm run build`
@@ -10,7 +10,9 @@
 - `src/core/` thuần TypeScript: không Three.js, không DOM, không I/O ngoài tham số.
 - CẤM dùng `Math.random` hay `Date` trong `src/core/`. Dùng PRNG mulberry32 có seed thuộc `World`.
 - 60 tick/giây, đúng thứ tự 12 bước của `docs/ticket-02.md`; duyệt thực thể theo ID tăng dần.
-- Số liệu chỉ lấy từ `docs/ticket-02.md`; nguồn duy nhất là `src/core/tuning.ts`, khớp `game.contract.json` (Contract v1.1).
+- Số liệu lấy từ `docs/ticket-03.md`, kế thừa `docs/ticket-02.md` khi chưa bị thay; `src/core/tuning.ts` khớp `game.contract.json` Contract v1.2.
+- Thắng = sống tới bình minh với ≥ ceil(0.6N) đèn sáng; hết lửa luôn thua trước.
+- Dầu là số nguyên 1/60, hao ở bước 2 trước tương tác; xem `docs/adr/ADR-001-lantern-fuel-dawn-win.md`.
 - Góc điểm sinh cố định theo `(r·cosα, 0, r·sinα)`.
 
 ## Nguyên tắc hoàn thành
