@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Player, Lantern, Shade, Mote, Drifter, Charm } from '../core/entities.js';
 import { createGlowTexture } from './scene.js';
+import { InstancedEntities } from './instanced.js';
 
 interface LanternVisual {
   group: THREE.Group;
@@ -10,20 +11,6 @@ interface LanternVisual {
   fuelBack: THREE.Sprite;
   fuelFill: THREE.Sprite;
   tear: THREE.Line;
-}
-
-interface ShadeVisual {
-  group: THREE.Group;
-  body: THREE.Mesh;
-  leftEye: THREE.Mesh;
-  rightEye: THREE.Mesh;
-  smokePuffs: THREE.Mesh[];
-  phase: number;
-}
-
-interface MoteVisual {
-  mesh: THREE.Mesh;
-  phase: number;
 }
 
 interface DrifterVisual {
@@ -48,14 +35,12 @@ export class RenderEntities {
   private orbitMotes: THREE.Mesh[] = [];
 
   public lanternMeshes: Map<string, LanternVisual> = new Map();
-  public shadeMeshes: Map<string, ShadeVisual> = new Map();
-  public moteMeshes: Map<string, MoteVisual> = new Map();
   public drifterMeshes: Map<string, DrifterVisual> = new Map();
   public charmMeshes: Map<string, THREE.Group> = new Map();
 
   private scene: THREE.Scene;
   private lanternGlowTex: THREE.CanvasTexture;
-  private moteGeo: THREE.SphereGeometry;
+  private instances: InstancedEntities;
 
   constructor(scene: THREE.Scene) {
     this.scene = scene;
@@ -63,7 +48,7 @@ export class RenderEntities {
       'rgba(255, 233, 176, 0.95)',
       'rgba(255, 179, 71, 0.35)'
     );
-    this.moteGeo = new THREE.SphereGeometry(0.16, 8, 8);
+    this.instances = new InstancedEntities(scene);
     this.playerGroup = this.createPlayerMesh();
     this.scene.add(this.playerGroup);
   }
@@ -298,128 +283,8 @@ export class RenderEntities {
     }
   }
 
-  public syncShades(
-    shades: Shade[],
-    player: Player,
-    lanterns: Lantern[],
-    safeRadius: number,
-    animTime: number,
-    colorblind = false
-  ): void {
-    const activeIds = new Set(shades.map((s) => s.id));
-    const litLanterns = lanterns.filter((l) => l.lit);
-
-    for (const [id, entry] of this.shadeMeshes.entries()) {
-      if (!activeIds.has(id)) {
-        this.scene.remove(entry.group);
-        this.shadeMeshes.delete(id);
-      }
-    }
-
-    for (const s of shades) {
-      let entry = this.shadeMeshes.get(s.id);
-      if (!entry) {
-        const group = new THREE.Group();
-        const body = new THREE.Mesh(
-          new THREE.SphereGeometry(0.88, 16, 16),
-          new THREE.MeshStandardMaterial({
-            color: 0x120a1a,
-            roughness: 0.35,
-            emissive: 0x7a3cff,
-            emissiveIntensity: 0.5,
-          })
-        );
-        group.add(body);
-
-        const eyeGeo = new THREE.SphereGeometry(0.14, 10, 10);
-        const leftEye = new THREE.Mesh(eyeGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-        leftEye.position.set(-0.28, 0.2, 0.76);
-        const rightEye = new THREE.Mesh(eyeGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }));
-        rightEye.position.set(0.28, 0.2, 0.76);
-        group.add(leftEye, rightEye);
-
-        const smokePuffs: THREE.Mesh[] = [];
-        for (let k = 0; k < 3; k++) {
-          const puff = new THREE.Mesh(
-            new THREE.SphereGeometry(0.55 - k * 0.12, 10, 10),
-            new THREE.MeshBasicMaterial({
-              color: 0x7a3cff,
-              transparent: true,
-              opacity: 0.42 - k * 0.1,
-              depthWrite: false,
-            })
-          );
-          puff.position.set(0, -0.05 * k, -0.75 - k * 0.55);
-          group.add(puff);
-          smokePuffs.push(puff);
-        }
-
-        this.scene.add(group);
-        entry = { group, body, leftEye, rightEye, smokePuffs, phase: hashIdToPhase(s.id) };
-        this.shadeMeshes.set(s.id, entry);
-      }
-
-      let nearLitLantern = false;
-      const fearDistSq = (safeRadius + 3.5) * (safeRadius + 3.5);
-      for (const l of litLanterns) {
-        const lx = s.pos[0] - l.pos[0];
-        const lz = s.pos[2] - l.pos[2];
-        if (lx * lx + lz * lz <= fearDistSq) {
-          nearLitLantern = true;
-          break;
-        }
-      }
-
-      let jitterX = 0;
-      let jitterZ = 0;
-      if (nearLitLantern && s.state !== 'stunned') {
-        jitterX = Math.sin(animTime * 42 + entry.phase) * 0.12;
-        jitterZ = Math.cos(animTime * 38 + entry.phase) * 0.12;
-      }
-
-      entry.group.position.set(s.pos[0] + jitterX, s.pos[1], s.pos[2] + jitterZ);
-
-      const dx = player.pos[0] - s.pos[0];
-      const dz = player.pos[2] - s.pos[2];
-      if (dx * dx + dz * dz > 0.0001) {
-        entry.group.rotation.y = Math.atan2(dx, dz);
-      }
-
-      const bodyMat = entry.body.material as THREE.MeshStandardMaterial;
-      const leftEyeMat = entry.leftEye.material as THREE.MeshBasicMaterial;
-      const rightEyeMat = entry.rightEye.material as THREE.MeshBasicMaterial;
-
-      if (s.state === 'stunned') {
-        bodyMat.color.setHex(0x3a3450);
-        bodyMat.emissive.setHex(0x3a3450);
-        bodyMat.emissiveIntensity = 0.35;
-        entry.body.scale.set(0.72, 0.72, 0.72);
-        entry.leftEye.scale.set(1.1, 0.15, 1);
-        entry.rightEye.scale.set(1.1, 0.15, 1);
-        leftEyeMat.color.setHex(colorblind ? 0x00b3ff : 0x666677);
-        rightEyeMat.color.setHex(colorblind ? 0x00b3ff : 0x666677);
-        for (const puff of entry.smokePuffs) puff.visible = false;
-      } else {
-        const pulse = Math.sin(animTime * 5.2 + entry.phase);
-        const sx = 1.0 + pulse * 0.09;
-        const sy = 1.0 - pulse * 0.11;
-        bodyMat.color.setHex(0x120a1a);
-        bodyMat.emissive.setHex(colorblind ? 0x00b3ff : 0x7a3cff);
-        bodyMat.emissiveIntensity = s.state === 'chase' ? 0.75 : 0.45;
-        entry.body.scale.set(sx, sy, sx);
-        entry.leftEye.scale.set(1, 1, 1);
-        entry.rightEye.scale.set(1, 1, 1);
-        leftEyeMat.color.setHex(colorblind ? 0x00b3ff : 0xffffff);
-        rightEyeMat.color.setHex(colorblind ? 0x00b3ff : 0xffffff);
-        for (let k = 0; k < entry.smokePuffs.length; k++) {
-          const puff = entry.smokePuffs[k];
-          (puff.material as THREE.MeshBasicMaterial).color.setHex(colorblind ? 0x00b3ff : 0x7a3cff);
-          puff.visible = true;
-          puff.position.x = Math.sin(animTime * 6 + entry.phase + k * 1.1) * 0.12;
-          puff.position.y = Math.cos(animTime * 4 + k) * 0.08;
-        }
-      }
-    }
+  public syncShades(shades: Shade[], player: Player, lanterns: Lantern[], safeRadius: number, animTime: number, colorblind = false): void {
+    this.instances.syncShades(shades, player, lanterns, safeRadius, animTime, colorblind);
   }
 
   // Gió Lạc: dải lụa xám xanh (#8FA3B8) lượn sóng
@@ -530,40 +395,7 @@ export class RenderEntities {
   }
 
   public syncMotes(motes: Mote[], animTime: number): void {
-    const activeMap = new Map<string, Mote>();
-    for (const m of motes) {
-      if (m.active) activeMap.set(m.id, m);
-    }
-
-    for (const [id, entry] of this.moteMeshes.entries()) {
-      if (!activeMap.has(id)) {
-        this.scene.remove(entry.mesh);
-        (entry.mesh.material as THREE.Material).dispose();
-        this.moteMeshes.delete(id);
-      }
-    }
-
-    for (const [id, m] of activeMap.entries()) {
-      let entry = this.moteMeshes.get(id);
-      if (!entry) {
-        const mat = new THREE.MeshStandardMaterial({
-          color: 0xfff6c2,
-          emissive: 0xffe58a,
-          emissiveIntensity: 1.5,
-        });
-        const mesh = new THREE.Mesh(this.moteGeo, mat);
-        this.scene.add(mesh);
-        entry = { mesh, phase: hashIdToPhase(id) };
-        this.moteMeshes.set(id, entry);
-      }
-
-      const hoverY = m.pos[1] + 0.38 + Math.sin(animTime * 3.2 + entry.phase) * 0.16;
-      const blink = 0.75 + 0.5 * (0.5 + 0.5 * Math.sin(animTime * 6.5 + entry.phase * 2));
-      entry.mesh.position.set(m.pos[0], hoverY, m.pos[2]);
-      entry.mesh.scale.setScalar(0.85 + blink * 0.25);
-      const mat = entry.mesh.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = 1.0 + blink * 1.2;
-    }
+    this.instances.syncMotes(motes, animTime);
   }
 
   public clearAll(): void {
@@ -572,16 +404,7 @@ export class RenderEntities {
     }
     this.lanternMeshes.clear();
 
-    for (const entry of this.shadeMeshes.values()) {
-      this.scene.remove(entry.group);
-    }
-    this.shadeMeshes.clear();
-
-    for (const entry of this.moteMeshes.values()) {
-      this.scene.remove(entry.mesh);
-      (entry.mesh.material as THREE.Material).dispose();
-    }
-    this.moteMeshes.clear();
+    this.instances.clear();
 
     for (const entry of this.drifterMeshes.values()) {
       this.scene.remove(entry.group);

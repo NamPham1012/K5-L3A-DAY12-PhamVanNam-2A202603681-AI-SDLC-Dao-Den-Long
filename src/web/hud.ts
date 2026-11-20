@@ -73,7 +73,8 @@ export class HudOverlay {
       this.timeCardEl.classList.remove('danger-blink');
     }
 
-    const litCount = world.lanterns.filter((l) => l.lit).length;
+    let litCount = 0;
+    for (let i=0;i<world.lanterns.length;i++) if(world.lanterns[i].lit) litCount++;
     const threshold = Math.ceil(world.tuning.win_ratio * world.lanterns.length);
     this.lanternsEl.textContent = `${litCount}/${threshold} đèn cần sáng`;
     this.scoreEl.textContent = String(world.score);
@@ -105,12 +106,13 @@ export class HudOverlay {
 
     // Nhắc nạp đèn khi đứng trong bán kính tương tác của đèn chưa sáng
     const rSq = world.tuning.interact_radius * world.tuning.interact_radius;
-    const nearUnlit = world.lanterns.find((l) => {
-      if (l.lit && l.fuel_u >= world.tuning.fuel_max * 60) return false;
-      const dx = p.pos[0] - l.pos[0];
-      const dz = p.pos[2] - l.pos[2];
-      return dx * dx + dz * dz <= rSq;
-    });
+    let nearUnlit = null;
+    for (let i=0;i<world.lanterns.length;i++) {
+      const l=world.lanterns[i];
+      if (l.lit && l.fuel_u >= world.tuning.fuel_max * 60) continue;
+      const dx=p.pos[0]-l.pos[0], dz=p.pos[2]-l.pos[2];
+      if(dx*dx+dz*dz<=rSq) { nearUnlit=l; break; }
+    }
     if (nearUnlit && world.state === 'playing') {
       this.promptEl.textContent = nearUnlit.lit ? `E — Châm dầu (${(nearUnlit.fuel_u / 60).toFixed(0)}%)` : `E — Nạp ánh sáng (${nearUnlit.deposited}/${nearUnlit.ever_lit ? world.tuning.relight_cost : world.tuning.lantern_cost})`;
       this.promptEl.classList.remove('hidden');

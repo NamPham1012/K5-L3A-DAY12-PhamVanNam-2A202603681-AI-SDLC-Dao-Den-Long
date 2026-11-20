@@ -396,7 +396,7 @@ function buildNight3Geometry(
   }
 }
 
-export function createScene(): SceneContext {
+export function createScene(benchmark = false): SceneContext {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0e1430);
   scene.fog = new THREE.FogExp2(0x1b2350, 0.0075);
@@ -436,7 +436,7 @@ export function createScene(): SceneContext {
     if (map.night === 1) {
       addRoundIsland(mapRoot, 0, 0, 40, sandMat, grassMat);
       addWoodenPier(mapRoot);
-      addNight1Decorations(mapRoot, map, createWebPrng(202603682));
+      if (!benchmark) addNight1Decorations(mapRoot, map, createWebPrng(202603682));
     } else if (map.night === 2) {
       buildNight2Geometry(mapRoot, map, sandMat, grassMat);
     } else {

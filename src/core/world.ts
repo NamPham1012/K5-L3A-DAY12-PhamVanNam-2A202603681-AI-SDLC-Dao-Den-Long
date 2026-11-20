@@ -68,6 +68,7 @@ export interface ScenarioData {
 }
 
 export class World {
+  public bench = false;
   public night: 1 | 2 | 3;
   public map: NightMap;
   public tick: number = 0;

@@ -17,6 +17,15 @@ import {
 import { checkCharmPickups } from './charms.js';
 
 export function stepWorld(world: World, input: InputState): void {
+  if (world.bench) {
+    const safe = world.lanterns.filter(l => l.lit && l.fuel_u >= 1800);
+    for (const shade of world.shades) {
+      updateShadeMovement(shade, [10000, 0, 10000], false, world.map.shadeSpeed, safe, world.tuning.safe_radius, world.map, world.sim_tick + 1, world.lanterns);
+    }
+    world.tick++;
+    world.sim_tick++;
+    return;
+  }
   if (world.state === 'won' || world.state === 'lost') {
     return;
   }

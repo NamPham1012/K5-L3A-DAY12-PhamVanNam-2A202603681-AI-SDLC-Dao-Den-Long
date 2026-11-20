@@ -10,6 +10,7 @@ import { MenuOverlay } from './menu.js';
 import { loadSettings, saveSettings, GameSettings } from './settings.js';
 import { GameAudio } from './audio.js';
 import './style.css';
+import { startBench } from './bench.js';
 
 type ScreenMode = 'menu' | 'intro' | 'playing' | 'result';
 
@@ -229,4 +230,5 @@ class GameApp {
   };
 }
 
-new GameApp();
+if (new URLSearchParams(location.search).has('bench')) startBench();
+else new GameApp();

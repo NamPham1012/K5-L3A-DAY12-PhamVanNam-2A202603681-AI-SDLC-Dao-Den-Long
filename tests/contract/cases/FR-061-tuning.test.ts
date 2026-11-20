@@ -10,10 +10,12 @@ describe('FR-061: game.contract.json tuning matches runtime', () => {
     const contract = JSON.parse(content);
 
     // Phase 2 (Ticket-02): contract_version nâng lên 1.1
-    expect(contract.contract_version).toBe('1.2');
+    expect(contract.contract_version).toBe('1.3');
     expect(contract.team).toBe('2A202603681-pham-van-nam');
     expect(contract.build_cmd).toBe('npm ci && npm run build');
-    expect(contract.run_cmd).toBe('npm run play');
+    expect(contract.run_cmd).toBe('npm run game --');
+    expect(contract.bench_cmd).toBe('npm run bench --');
+    expect(contract.soak_cmd).toBe('node --expose-gc dist/soak.js');
     expect(contract.headless_cmd).toBe('node dist/headless.js');
 
     expect(contract.tuning).toBeDefined();

@@ -8,7 +8,7 @@ describe('FR2-050: game.contract.json v1.1 tuning matches Ticket-02 & runtime', 
     const contractPath = path.resolve(process.cwd(), 'game.contract.json');
     const contract = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
 
-    expect(contract.contract_version).toBe('1.2');
+    expect(contract.contract_version).toBe('1.3');
     expect(contract.tuning).toEqual(TUNING);
 
     // Đối chiếu từng hằng số bắt buộc của Ticket-02 Phần 1 & 4

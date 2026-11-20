@@ -81,3 +81,7 @@
 
 - Spec do Claude soạn có ví dụ acceptance #3 và #8 bỏ qua dầu hao ở bước 2 trước tương tác và xét bình minh.
 - Agent implement phát hiện khi chạy test CLI: đèn ban đầu đầy đã hao 1/60 trước tương tác; điểm bình minh phải tính theo dầu sau hao. Spec được sửa lúc 17:10; test CLI và unit test chọn đèn được cập nhật theo thứ tự tick của Ticket-03. Không bỏ qua test.
+
+## Phase 4 — Benchmark
+
+- Nhận định từ review: “p1_low 12 → nguyên nhân shader compile + 1200 draw call + GC, phát hiện bởi review”. Đây là nhận định cần đối chiếu với dữ liệu khung chậm, không phải kết luận đã được profiler xác nhận. Hướng xử lý: làm nóng shader và bốn góc camera, dùng InstancedMesh, tái sử dụng đối tượng và lưu 20 khung chậm nhất.

@@ -9,7 +9,9 @@
     "contract": "npm run build && vitest run tests/contract",
     "verify": "node scripts/verify.mjs",
     "play": "vite",
-    "prepare": "node scripts/install-hooks.mjs"
+    "prepare": "node scripts/install-hooks.mjs",
+    "game": "electron dist/main.cjs",
+    "bench": "electron dist/main.cjs --bench"
   },
   "dependencies": {
     "three": "^0.160.0"
@@ -17,6 +19,7 @@
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/three": "^0.160.0",
+    "electron": "^33.0.0",
     "esbuild": "^0.20.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.12",
