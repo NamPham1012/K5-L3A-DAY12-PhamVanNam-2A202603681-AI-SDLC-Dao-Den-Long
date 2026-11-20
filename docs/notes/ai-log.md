@@ -70,3 +70,12 @@
 - **Spec-Kit & Review độc lập (Codex + Claude)**: ~55.000 tokens
 - **Implementation Nhóm A + B + D + Web polish (Antigravity)**: ~110.000 tokens
 - **Tổng ước tính Phase 2 (chưa gồm Nhóm C)**: ~165.000 tokens.
+
+---
+
+# Nhật ký AI — Phase 3
+
+## Lỗi spec do Claude, agent implement phát hiện
+
+- Spec do Claude soạn có ví dụ acceptance #3 và #8 bỏ qua dầu hao ở bước 2 trước tương tác và xét bình minh.
+- Agent implement phát hiện khi chạy test CLI: đèn ban đầu đầy đã hao 1/60 trước tương tác; điểm bình minh phải tính theo dầu sau hao. Spec được sửa lúc 17:10; test CLI và unit test chọn đèn được cập nhật theo thứ tự tick của Ticket-03. Không bỏ qua test.

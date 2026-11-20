@@ -59,6 +59,20 @@ export function stepWorld(world: World, input: InputState): void {
   const nextSimTick = world.sim_tick + 1;
   world.time_left_s = world.initial_duration_s - nextSimTick / 60;
 
+  for (const lantern of world.lanterns) {
+    if (!lantern.lit) continue;
+    const drainers = world.shades.filter(s => s.state === 'drain' && s.target_lantern_id === lantern.id);
+    lantern.fuel_u -= 1 + 5 * drainers.length;
+    for (const shade of drainers) {
+      shade.drain_ticks = (shade.drain_ticks ?? 0) + 1;
+      if (shade.drain_ticks % 60 === 0) world.events.push({ type: 'event', tick: nextTick, name: 'fuel_drain', data: { lantern_id: lantern.id, shade_id: shade.id, fuel: Math.round(Math.max(0, lantern.fuel_u) / 6) / 10 } });
+    }
+    if (lantern.fuel_u <= 0) {
+      lantern.fuel_u = 0; lantern.lit = false; lantern.deposited = 0;
+      world.events.push({ type: 'event', tick: nextTick, name: 'lantern_out', data: { lantern_id: lantern.id } });
+    }
+  }
+
   if (player.dash_cd_ticks > 0) player.dash_cd_ticks -= 1;
   if (player.pulse_cd_ticks > 0) player.pulse_cd_ticks -= 1;
   player.pulse_cooldown_timer = player.pulse_cd_ticks / 60;
@@ -149,7 +163,7 @@ export function stepWorld(world: World, input: InputState): void {
     for (const mote of sortedMotes) {
       if (!mote.active) continue;
       if (mote.interactable_from_tick > nextSimTick) continue;
-      if (player.carried >= tuning.carry_capacity) break;
+      if (player.carried >= Math.min(tuning.capacity_max, tuning.carry_capacity + 2 * player.successful_lights)) break;
 
       const dx = player.pos[0] - mote.pos[0];
       const dz = player.pos[2] - mote.pos[2];
@@ -175,33 +189,39 @@ export function stepWorld(world: World, input: InputState): void {
   if (player.fall_respawn_ticks === 0 && interactEdge && player.carried > 0) {
     const target = findBestLanternToDeposit(player.pos, world.lanterns, tuning.interact_radius);
     if (target) {
-      const needed = tuning.lantern_cost - target.deposited;
+      const needed = target.lit ? Math.ceil((6000 - target.fuel_u) / 600) : (target.ever_lit ? tuning.relight_cost : tuning.lantern_cost) - target.deposited;
       const amount = Math.min(player.carried, needed);
 
       if (amount > 0) {
         player.carried -= amount;
-        target.deposited += amount;
+        if (target.lit) target.fuel_u = Math.min(6000, target.fuel_u + amount * 600);
+        else target.deposited += amount;
         world.score += amount * tuning.score.per_mote;
 
         world.events.push({
           type: 'event',
           tick: nextTick,
-          name: 'deposit',
-          data: {
+          name: target.lit ? 'refuel' : 'deposit',
+          data: target.lit ? { lantern_id: target.id, amount, fuel: Math.round(target.fuel_u / 6) / 10 } : {
             lantern_id: target.id,
             amount,
             deposited: target.deposited,
           },
         });
 
-        if (target.deposited >= tuning.lantern_cost) {
+        if (!target.lit && target.deposited >= (target.ever_lit ? tuning.relight_cost : tuning.lantern_cost)) {
+          const relight = target.ever_lit;
           target.lit = true;
-          world.score += tuning.score.per_lantern;
+          target.fuel_u = 6000;
+          target.ever_lit = true;
+          if (relight) target.relit_count++;
+          player.successful_lights++;
+          world.score += relight ? tuning.score.per_relight : tuning.score.per_lantern;
           world.events.push({
             type: 'event',
             tick: nextTick,
             name: 'lantern_lit',
-            data: { lantern_id: target.id },
+            data: { lantern_id: target.id, relight },
           });
         }
       }
@@ -211,7 +231,7 @@ export function stepWorld(world: World, input: InputState): void {
   // =========================================================================
   // BƯỚC 6: Cập nhật vùng an toàn
   // =========================================================================
-  const litLanterns = world.lanterns.filter((l) => l.lit);
+  const litLanterns = world.lanterns.filter((l) => l.lit && l.fuel_u >= 1800);
   const sortedShades = [...world.shades].sort((a, b) =>
     a.id.localeCompare(b.id, undefined, { numeric: true })
   );
@@ -221,6 +241,7 @@ export function stepWorld(world: World, input: InputState): void {
   // BƯỚC 7: Tỏa Sáng (Pulse) — tác dụng lên Bóng Mực và Gió Lạc
   // =========================================================================
   if (pulseEdge) {
+    const drainingIds = new Set(world.shades.filter(s => s.state === 'drain').map(s => s.id));
     const pulseRes = executePulse(
       player,
       world.shades,
@@ -234,6 +255,7 @@ export function stepWorld(world: World, input: InputState): void {
 
     if (pulseRes.triggered) {
       world.score += tuning.score.per_stun * pulseRes.stunnedIds.length;
+      world.score += (tuning.score.per_stun_drain - tuning.score.per_stun) * pulseRes.stunnedIds.filter(id => drainingIds.has(id)).length;
       world.events.push({
         type: 'event',
         tick: nextTick,
@@ -258,6 +280,7 @@ export function stepWorld(world: World, input: InputState): void {
       tuning.safe_radius,
       world.map,
       nextSimTick
+      , world.lanterns
     );
   }
   updateDriftersMovement(world.drifters, player, nextSimTick);
@@ -364,7 +387,7 @@ export function stepWorld(world: World, input: InputState): void {
   // BƯỚC 11: Xét thắng/thua (no_flames > won/all_lit > dawn)
   // =========================================================================
   const noFlames = player.flames <= 0;
-  const allLit = world.lanterns.every((l) => l.lit);
+  const litCount = world.lanterns.filter((l) => l.lit).length;
   const dawn = world.time_left_s <= 0;
 
   if (noFlames) {
@@ -375,17 +398,17 @@ export function stepWorld(world: World, input: InputState): void {
       name: 'game_over',
       data: { result: 'lost', reason: 'no_flames' },
     });
-  } else if (allLit) {
+  } else if (dawn && litCount >= Math.ceil(tuning.win_ratio * world.lanterns.length)) {
     world.state = 'won';
     const bonus =
-      Math.floor(Math.max(0, world.time_left_s)) * tuning.score.per_second_left +
+      world.lanterns.filter(l => l.lit).reduce((sum, l) => sum + tuning.score.per_lit_lantern_dawn + Math.floor(l.fuel_u / 60), 0) +
       player.flames * tuning.score.per_flame_left;
     world.score += bonus;
     world.events.push({
       type: 'event',
       tick: nextTick,
       name: 'game_over',
-      data: { result: 'won', reason: 'all_lit' },
+      data: { result: 'won', reason: 'dawn_survived' },
     });
   } else if (dawn) {
     world.state = 'lost';

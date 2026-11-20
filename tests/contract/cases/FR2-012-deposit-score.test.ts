@@ -60,7 +60,7 @@ describe('FR2-010 / FR2-012: Pickup height check, 0 score on pickup, +10 per mot
     // Tick 2: interact nạp 2 mote vào L1 (8->10) -> +20 nạp + 100 thắp = 120
     const snap2 = lines.find((l) => l.type === 'snapshot' && l.tick === 2);
     expect(snap2.player.carried).toBe(0);
-    expect(snap2.score).toBe(120);
+    expect(snap2.score).toBe(110);
     expect(snap2.lanterns.find((l: any) => l.id === 'L1').lit).toBe(true);
   });
 });

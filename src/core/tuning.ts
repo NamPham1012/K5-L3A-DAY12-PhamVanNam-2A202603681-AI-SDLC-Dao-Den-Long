@@ -4,6 +4,9 @@ export interface TuningScore {
   per_stun: number;
   per_second_left: number;
   per_flame_left: number;
+  per_relight: number;
+  per_stun_drain: number;
+  per_lit_lantern_dawn: number;
 }
 
 export interface TuningConfig {
@@ -31,6 +34,14 @@ export interface TuningConfig {
   dash_speed: number;
   dash_duration_s: number;
   dash_cooldown_s: number;
+  fuel_max: number;
+  fuel_decay_per_s: number;
+  fuel_per_mote: number;
+  relight_cost: number;
+  win_ratio: number;
+  drain_per_s: number;
+  low_fuel_threshold: number;
+  capacity_max: number;
   score: TuningScore;
 }
 
@@ -43,9 +54,9 @@ export const TUNING: TuningConfig = {
   interact_radius: 2.0,
   pulse_cost: 3,
   pulse_radius: 5.0,
-  night1_duration_s: 300,
-  night2_duration_s: 330,
-  night3_duration_s: 360,
+  night1_duration_s: 240,
+  night2_duration_s: 270,
+  night3_duration_s: 300,
   flames: 3,
   invuln_s: 1.5,
   hit_drop_ratio: 0.5,
@@ -59,11 +70,22 @@ export const TUNING: TuningConfig = {
   dash_speed: 14.0,
   dash_duration_s: 0.2,
   dash_cooldown_s: 1.5,
+  fuel_max: 100,
+  fuel_decay_per_s: 1,
+  fuel_per_mote: 10,
+  relight_cost: 5,
+  win_ratio: 0.6,
+  drain_per_s: 5,
+  low_fuel_threshold: 30,
+  capacity_max: 20,
   score: {
-    per_mote: 10,
+    per_mote: 5,
     per_lantern: 100,
     per_stun: 5,
-    per_second_left: 2,
+    per_second_left: 0,
     per_flame_left: 50,
+    per_relight: 40,
+    per_stun_drain: 15,
+    per_lit_lantern_dawn: 50,
   },
 };

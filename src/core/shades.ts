@@ -54,7 +54,8 @@ export function updateShadeMovement(
   litLanterns: Lantern[],
   safeRadius: number,
   map: NightMap,
-  currentSimTick: number
+  currentSimTick: number,
+  allLanterns: Lantern[]
 ): void {
   if (shade.interactable_from_tick > currentSimTick || shade.state === 'spawning') {
     return;
@@ -131,12 +132,38 @@ export function updateShadeMovement(
     return;
   }
 
+  if (shade.state === 'drain') {
+    const target = allLanterns.find(l => l.id === shade.target_lantern_id);
+    if (dist <= 6) shade.state = 'chase';
+    else if (!target || !target.lit || target.fuel_u >= 1800 || Math.hypot(shade.pos[0] - target.pos[0], shade.pos[2] - target.pos[2]) > 2) shade.state = 'wander';
+    else return;
+    shade.drain_ticks = 0;
+  }
+
   if (shade.state === 'wander' && dist <= DETECT_RADIUS) {
     shade.state = 'chase';
   } else if (shade.state === 'chase' && dist > DROP_CHASE_RADIUS) {
     shade.state = 'wander';
   }
 
+  if (shade.state === 'wander') {
+    const byDistance = (a: Lantern, b: Lantern) => Math.hypot(a.pos[0]-shade.pos[0], a.pos[2]-shade.pos[2]) - Math.hypot(b.pos[0]-shade.pos[0], b.pos[2]-shade.pos[2]) || a.id.localeCompare(b.id, undefined, {numeric:true});
+    const weak = allLanterns.filter(l => l.lit && l.fuel_u < 1800).sort(byDistance);
+    const target = weak[0] ?? allLanterns.filter(l => !l.lit).sort(byDistance)[0];
+    if (!target) return;
+    shade.target_lantern_id = target.id;
+    const tx = target.pos[0] - shade.pos[0], tz = target.pos[2] - shade.pos[2];
+    const distance = Math.hypot(tx, tz);
+    if (distance <= 2) {
+      if (target.lit && target.fuel_u < 1800) { shade.state = 'drain'; shade.drain_ticks = 0; }
+      return;
+    }
+    const move = Math.min(2 / 60, distance - 2);
+    const x = shade.pos[0] + tx / distance * move, z = shade.pos[2] + tz / distance * move;
+    if (!map.isBlockedXZ(shade.pos[0], shade.pos[2], x, z, shade.pos[1]) && !litLanterns.some(l => Math.hypot(x-l.pos[0], z-l.pos[2]) < safeRadius)) { shade.pos[0] = x; shade.pos[2] = z; }
+    if (target.lit && target.fuel_u < 1800 && Math.hypot(target.pos[0]-shade.pos[0], target.pos[2]-shade.pos[2]) <= 2 + 1e-9) { shade.state = 'drain'; shade.drain_ticks = 0; }
+    return;
+  }
   if (shade.state !== 'chase') {
     return;
   }

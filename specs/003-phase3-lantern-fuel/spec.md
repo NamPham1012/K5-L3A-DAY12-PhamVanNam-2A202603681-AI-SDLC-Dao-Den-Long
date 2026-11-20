@@ -52,11 +52,11 @@
 ## Acceptance (scenario headless, mỗi FR3 ≥ 1)
 1. Đèn L1 sáng fuel 100, không ai hút, 600 tick → fuel 90.0. 6000 tick → `lantern_out` ở tick 6000, deposited 0, ever_lit true.
 2. L1 sáng fuel 50, carried 7, interact → used = ceil(50/10) = 5, fuel 100, carried 2, `refuel {amount 5, fuel 100}`, +25.
-3. L1 fuel 100, interact → không gì; L2 chưa sáng cùng trong 2 m → chọn L2.
+3. (Sửa 17:10, theo thứ tự tick: dầu hao ở bước 2 TRƯỚC tương tác, nên đèn đặt fuel 100 đã còn 99.98 khi tương tác.) L1 sáng fuel 100 gần hơn, L2 chưa sáng cùng trong 2 m, carried 5 → `refuel L1 amount 1 fuel 100` (ceil(0.017/10)=1). Luật "đèn đầy (used=0) bị bỏ qua" kiểm bằng **unit test** hàm chọn đèn với fuel_u = 6000 (không tạo được qua CLI vì dầu luôn hao trước tương tác).
 4. L1 ever_lit tắt, carried 5 → thắp lại `lantern_lit relight:true`, +25 +40, relit_count 1, capacity 12 nếu successful_lights trước = 0.
 5. L1 sáng fuel 29, shade wander ở (0,0,22) → tới ≤ 2 m, `drain`, fuel giảm 6/s, `fuel_drain` mỗi 60 tick.
 6. Shade drain, pulse trúng → stunned, +15.
 7. L1 fuel 30 + shade ở 4 m → shade bị chặn/đẩy ra 6 m (30 vẫn có vùng an toàn); fuel 29.9 → mất vùng an toàn.
-8. Bình minh Đêm 1 với 3 đèn sáng (fuel 100, 80, 50), 3 lửa → `won dawn_survived`, điểm thưởng = 3·50 + 100+80+50 + 3·50.
+8. (Sửa 17:10) Bình minh Đêm 1 với 3 đèn sáng đặt fuel 100/80/50, 3 lửa → `won dawn_survived`; thưởng tính trên fuel **tại tick bình minh sau khi hao**: 3·50 + Σ floor(fuel_i − T/60) + 3·50 (T = số tick chạy). Ví dụ time_left 1 s ⇒ 150 + (99+79+49) + 150 = 527.
 9. Bình minh với 2 đèn sáng → `lost dawn`. Hết lửa đúng tick bình minh → `lost no_flames`.
 10. Thắp đủ 5 đèn sớm → không kết thúc.

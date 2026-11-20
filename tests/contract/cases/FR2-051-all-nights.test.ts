@@ -13,9 +13,9 @@ describe('FR2-051: All three nights (--night 1, 2, 3) contract compliance & byte
   });
 
   for (const cfg of [
-    { night: 1, duration: 300, lanterns: 5 },
-    { night: 2, duration: 330, lanterns: 6 },
-    { night: 3, duration: 360, lanterns: 7 },
+    { night: 1, duration: 240, lanterns: 5 },
+    { night: 2, duration: 270, lanterns: 6 },
+    { night: 3, duration: 300, lanterns: 7 },
   ]) {
     it(`FR2-051: Night ${cfg.night} runs deterministically with ${cfg.lanterns} lanterns and ${cfg.duration}s`, () => {
       const r1 = runCliSync({ seed: 77, night: cfg.night, ticks: 60, snapshotEvery: 30 });

@@ -70,7 +70,7 @@ describe('FR-003 / FR-010: Pickup, deposit and light lantern in tick 1 (US2 Inde
     });
 
     expect(events[2].name).toBe('lantern_lit');
-    expect(events[2].data).toEqual({ lantern_id: 'L1' });
+    expect(events[2].data).toEqual({ lantern_id: 'L1', relight: false });
 
     // Snapshot tick 1
     const snap1 = lines.find((l) => l.type === 'snapshot' && l.tick === 1);

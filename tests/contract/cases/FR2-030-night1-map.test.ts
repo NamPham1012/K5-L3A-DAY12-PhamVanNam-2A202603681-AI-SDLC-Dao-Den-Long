@@ -22,7 +22,7 @@ describe('FR2-030: Night 1 standardized map coordinates, spawn rings and fall ed
     const lines = res.readLines<any>();
     const snap0 = lines.find((l) => l.type === 'snapshot' && l.tick === 0);
 
-    expect(snap0.lanterns).toEqual([
+    expect(snap0.lanterns).toMatchObject([
       { id: 'L1', pos: [0, 0, 25], lit: false, deposited: 0 },
       { id: 'L2', pos: [23.8, 0, 7.7], lit: false, deposited: 0 },
       { id: 'L3', pos: [14.7, 0, -20.2], lit: false, deposited: 0 },

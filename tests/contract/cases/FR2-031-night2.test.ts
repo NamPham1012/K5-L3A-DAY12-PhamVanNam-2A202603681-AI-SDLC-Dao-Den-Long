@@ -51,7 +51,7 @@ describe('FR2-031: Night 2 (Dao Cau) — two islands, bamboo bridge, jump pads &
     const lines = res.readLines<any>();
     const snap0 = lines.find((l) => l.type === 'snapshot' && l.tick === 0);
     expect(snap0.night).toBe(2);
-    expect(snap0.time_left_s).toBe(330);
+    expect(snap0.time_left_s).toBe(270);
     expect(snap0.lanterns).toHaveLength(6);
     expect(snap0.lanterns[3]).toMatchObject({ id: 'L4', pos: [70, 0, 20] });
     expect(snap0.charms).toHaveLength(1);

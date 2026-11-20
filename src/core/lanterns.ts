@@ -7,7 +7,7 @@ export function findBestLanternToDeposit(
 ): Lantern | null {
   const interactRadiusSq = interactRadius * interactRadius;
   const candidates = lanterns
-    .filter((l) => !l.lit)
+    .filter((l) => !l.lit || l.fuel_u < 6000)
     .map((l) => {
       const dx = playerPos[0] - l.pos[0];
       const dz = playerPos[2] - l.pos[2];

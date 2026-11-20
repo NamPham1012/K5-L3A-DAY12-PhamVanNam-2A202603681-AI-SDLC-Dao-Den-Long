@@ -2,7 +2,6 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { runCliSync } from '../cli-helper.js';
 import fs from 'node:fs';
 import path from 'node:path';
-import { TUNING } from '../../../src/core/tuning.js';
 
 describe('FR-010: Pre-lit all lanterns scenario (US2 / Edge case)', () => {
   const cleanups: string[] = [];
@@ -54,25 +53,19 @@ describe('FR-010: Pre-lit all lanterns scenario (US2 / Edge case)', () => {
     expect(snap0).toBeDefined();
     expect(snap0.score).toBe(0);
 
-    // Event in tick 1 is game_over won all_lit
+    // Ticket-03: full illumination does not end the night early.
     const gameOver = lines.find((l) => l.type === 'event' && l.name === 'game_over');
-    expect(gameOver).toBeDefined();
-    expect(gameOver.data).toEqual({ result: 'won', reason: 'all_lit' });
-
-    // Bonus score: floor(time_left_s) * per_second_left + flames * per_flame_left
-    // time_left_s at tick 1 is 100 - 1/60 = 99.9833 -> floor is 99
-    const expectedBonus =
-      99 * TUNING.score.per_second_left + 3 * TUNING.score.per_flame_left;
+    expect(gameOver).toBeUndefined();
 
     const snap1 = lines.find((l) => l.type === 'snapshot' && l.tick === 1);
-    expect(snap1.state).toBe('won');
-    expect(snap1.score).toBe(expectedBonus);
+    expect(snap1.state).toBe('playing');
+    expect(snap1.score).toBe(0);
 
     // End line
     const last = lines[lines.length - 1];
     expect(last.type).toBe('end');
-    expect(last.ticks).toBe(1);
-    expect(last.state).toBe('won');
-    expect(last.score).toBe(expectedBonus);
+    expect(last.ticks).toBe(5);
+    expect(last.state).toBe('playing');
+    expect(last.score).toBe(0);
   });
 });

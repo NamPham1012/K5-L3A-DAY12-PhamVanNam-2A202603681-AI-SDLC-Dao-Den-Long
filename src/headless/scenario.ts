@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { ScenarioData } from '../core/world.js';
 import { DrifterState, ShadeState, Vec3 } from '../core/entities.js';
 
-const VALID_SHADE_STATES: ShadeState[] = ['spawning', 'wander', 'chase', 'recoil', 'stunned'];
+const VALID_SHADE_STATES: ShadeState[] = ['spawning', 'wander', 'chase', 'recoil', 'stunned', 'drain'];
 const VALID_DRIFTER_STATES: DrifterState[] = ['idle', 'chase', 'flee', 'removed'];
 
 function validateVec3(v: unknown, name: string): Vec3 {
@@ -44,6 +44,7 @@ export function parseScenarioFile(filePath: string): ScenarioData {
     }
     const p = data.player as Record<string, unknown>;
     result.player = {};
+    if (p.successful_lights !== undefined) result.player.successful_lights = validateNonNegInt(p.successful_lights, 'player.successful_lights');
     if (p.pos !== undefined) {
       result.player.pos = validateVec3(p.pos, 'player.pos');
     }
@@ -130,7 +131,8 @@ export function parseScenarioFile(filePath: string): ScenarioData {
         item.state_ticks_left !== undefined
           ? validateNonNegInt(item.state_ticks_left, `shades[${idx}].state_ticks_left`)
           : undefined;
-      return { pos, id, state, state_ticks_left };
+      if (item.target_lantern_id !== undefined && typeof item.target_lantern_id !== 'string') throw new Error('Invalid target_lantern_id');
+      return { pos, id, state, state_ticks_left, target_lantern_id: item.target_lantern_id as string | undefined };
     });
   }
 
@@ -199,7 +201,9 @@ export function parseScenarioFile(filePath: string): ScenarioData {
       const pos = item.pos !== undefined ? validateVec3(item.pos, `lanterns[${idx}].pos`) : undefined;
       const lit = typeof item.lit === 'boolean' ? item.lit : undefined;
       const deposited = typeof item.deposited === 'number' ? item.deposited : undefined;
-      return { id, pos, lit, deposited };
+      if (item.fuel !== undefined && (typeof item.fuel !== 'number' || !Number.isFinite(item.fuel) || item.fuel < 0 || item.fuel > 100)) throw new Error('Invalid lantern fuel');
+      if (item.ever_lit !== undefined && typeof item.ever_lit !== 'boolean') throw new Error('Invalid ever_lit');
+      return { id, pos, lit, deposited, fuel: item.fuel as number | undefined, ever_lit: item.ever_lit as boolean | undefined };
     });
   }
 

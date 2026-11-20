@@ -37,6 +37,7 @@ export interface ScenarioData {
     dash_cd_ticks?: number;
     pulse_cd_ticks?: number;
     charm_ticks?: number;
+    successful_lights?: number;
   };
   random_motes?: boolean;
   random_shades?: boolean;
@@ -48,6 +49,7 @@ export interface ScenarioData {
     pos: Vec3;
     state?: ShadeState;
     state_ticks_left?: number;
+    target_lantern_id?: string;
   }[];
   drifters?: {
     id?: string;
@@ -61,7 +63,7 @@ export interface ScenarioData {
     available?: boolean;
     respawn_ticks?: number;
   }[];
-  lanterns?: { id: string; pos?: Vec3; lit?: boolean; deposited?: number }[];
+  lanterns?: { id: string; pos?: Vec3; lit?: boolean; deposited?: number; fuel?: number; ever_lit?: boolean }[];
   time_left_s?: number;
 }
 
@@ -107,7 +109,7 @@ export class World {
     this.tuning = tuning;
     this.rng = new PRNG(seed);
 
-    this.initial_duration_s = scenario?.time_left_s ?? this.map.duration_s;
+    this.initial_duration_s = scenario?.time_left_s ?? [tuning.night1_duration_s, tuning.night2_duration_s, tuning.night3_duration_s][night - 1];
     this.time_left_s = this.initial_duration_s;
 
     if (scenario?.random_motes !== undefined) {
@@ -143,6 +145,7 @@ export class World {
       facing: [this.map.startFacing[0], this.map.startFacing[1]],
       flames: scenario?.player?.flames ?? tuning.flames,
       carried: scenario?.player?.carried ?? 0,
+      successful_lights: scenario?.player?.successful_lights ?? 0,
       invuln_ticks: invulnTicks,
       invuln_timer: invulnTicks / 60,
       dash_ticks_left: 0,
@@ -184,6 +187,9 @@ export class World {
       pos: [l.pos[0], l.pos[1], l.pos[2]],
       deposited: 0,
       lit: false,
+      fuel_u: 0,
+      ever_lit: false,
+      relit_count: 0,
     }));
 
     if (scenarioLanterns) {
@@ -193,6 +199,8 @@ export class World {
           if (override.pos) found.pos = [override.pos[0], override.pos[1], override.pos[2]];
           if (override.deposited !== undefined) found.deposited = override.deposited;
           if (override.lit !== undefined) found.lit = override.lit;
+          found.ever_lit = override.ever_lit ?? found.lit;
+          found.fuel_u = found.lit ? Math.round((override.fuel ?? 100) * 60) : 0;
         }
       }
     }
@@ -256,6 +264,8 @@ export class World {
           id: shadeId,
           pos: [s.pos[0], s.pos[1], s.pos[2]],
           state: st,
+          target_lantern_id: s.target_lantern_id,
+          drain_ticks: 0,
           state_ticks_left: ticksLeft,
           stun_timer: st === 'stunned' ? ticksLeft / 60 : 0,
           push_ticks_left: 0,
@@ -351,6 +361,9 @@ export class World {
         pos: roundVec3(l.pos),
         lit: l.lit,
         deposited: l.deposited,
+        fuel: l.lit ? Math.round(l.fuel_u / 6) / 10 : 0,
+        ever_lit: l.ever_lit,
+        relit_count: l.relit_count,
       }));
 
     const sortedShades = [...this.shades]
@@ -400,6 +413,7 @@ export class World {
         grounded: this.player.grounded,
         flames: this.player.flames,
         carried: this.player.carried,
+        capacity: Math.min(this.tuning.capacity_max, this.tuning.carry_capacity + 2 * this.player.successful_lights),
         invuln: round3(this.player.invuln_ticks / 60),
         dash_cd_s: round3(this.player.dash_cd_ticks / 60),
         pulse_cd_s: round3(this.player.pulse_cd_ticks / 60),

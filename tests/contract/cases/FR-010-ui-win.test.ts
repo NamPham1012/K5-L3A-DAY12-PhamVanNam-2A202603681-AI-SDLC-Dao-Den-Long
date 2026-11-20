@@ -47,12 +47,11 @@ describe('FR-010 / US5: Web & contract win scenario verification', () => {
     const lines = res.readLines<any>();
 
     const gameOver = lines.find((l) => l.type === 'event' && l.name === 'game_over');
-    expect(gameOver).toBeDefined();
-    expect(gameOver.data).toEqual({ result: 'won', reason: 'all_lit' });
+    expect(gameOver).toBeUndefined();
 
     const endLine = lines[lines.length - 1];
     expect(endLine.type).toBe('end');
     expect(endLine.ticks).toBe(1);
-    expect(endLine.state).toBe('won');
+    expect(endLine.state).toBe('playing');
   });
 });

@@ -1,7 +1,7 @@
 export type Vec3 = [number, number, number];
 export type Vec2 = [number, number];
 
-export type ShadeState = 'spawning' | 'wander' | 'chase' | 'recoil' | 'stunned';
+export type ShadeState = 'spawning' | 'wander' | 'chase' | 'recoil' | 'stunned' | 'drain';
 export type DrifterState = 'idle' | 'chase' | 'flee' | 'removed';
 export type WorldState = 'playing' | 'paused' | 'won' | 'lost';
 
@@ -13,6 +13,7 @@ export interface Player {
   facing: Vec2;
   flames: number;
   carried: number;
+  successful_lights: number;
   invuln_ticks: number;
   invuln_timer: number;
   dash_ticks_left: number;
@@ -47,6 +48,9 @@ export interface Lantern {
   pos: Vec3;
   deposited: number;
   lit: boolean;
+  fuel_u: number;
+  ever_lit: boolean;
+  relit_count: number;
 }
 
 export interface Shade {
@@ -61,6 +65,8 @@ export interface Shade {
   safe_push_ticks_left: number;
   safe_push_step: Vec2;
   interactable_from_tick: number;
+  target_lantern_id?: string;
+  drain_ticks?: number;
 }
 
 export interface Drifter {
@@ -102,6 +108,9 @@ export type SimEventName =
   | 'mote_picked'
   | 'deposit'
   | 'lantern_lit'
+  | 'lantern_out'
+  | 'fuel_drain'
+  | 'refuel'
   | 'pulse'
   | 'dash'
   | 'charm_picked'
@@ -138,6 +147,7 @@ export interface SnapshotOutput {
     grounded: boolean;
     flames: number;
     carried: number;
+    capacity: number;
     invuln: number;
     dash_cd_s: number;
     pulse_cd_s: number;
@@ -148,6 +158,9 @@ export interface SnapshotOutput {
     pos: Vec3;
     lit: boolean;
     deposited: number;
+    fuel: number;
+    ever_lit: boolean;
+    relit_count: number;
   }[];
   shades: {
     id: string;
