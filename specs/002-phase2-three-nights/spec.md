@@ -123,7 +123,7 @@ Gió Lạc xuất hiện trong Đêm 2 và 3, truy đuổi và có thể cướp
 - **FR2-024** Tỏa Sáng: cạnh lên `pulse`, carried ≥ 3, hết hồi chiêu → trừ 3, hồi chiêu 180 tick; tâm = chân + (0,0.8,0); mục tiêu chốt ngay tick đó: shade có khoảng cách 3D ≤ 5. Mỗi shade trúng: `stunned` 120 tick (làm mới nếu đang choáng), đẩy lùi tổng 4 m ngang trong 15 tick đầu (dừng nếu bị chặn bởi vách/tháp/mép vùng an toàn; trùng vị trí đẩy +X); +5 điểm mỗi con. Sự kiện `pulse {stunned_ids}`. Không đủ 3 → không gì cả.
 
 ### Bản đồ
-- **FR2-030** Đêm 1: đảo tròn r 40; xuất phát (0,0,0) mặt +Z; đèn đúng toạ độ ticket; điểm đom đóm 8 điểm r12 (0°,45°…) + 16 điểm r33 (0°,22.5°…); điểm Bóng Mực 12 điểm r37 tại 15°+30°k. Góc từ +X ngược chiều kim đồng hồ nhìn từ trên: điểm = (r·cosα, 0, −r·sinα) ★ (nhìn từ trên với Y lên, ngược chiều kim đồng hồ từ +X đi về −Z).
+- **FR2-030** Đêm 1: đảo tròn r 40; xuất phát (0,0,0) mặt +Z; đèn đúng toạ độ ticket; điểm đom đóm 8 điểm r12 (0°,45°…) + 16 điểm r33 (0°,22.5°…); điểm Bóng Mực 12 điểm r37 tại 15°+30°k. Góc α từ +X: điểm = (r·cosα, 0, r·sinα) (đã chốt, không còn ★). Suy ra từ chính ticket: tầng 1 Đêm 3 nằm ở z > 0 và các điểm đom đóm tầng 1 ở 20°…160°, dốc 30°/150° phải lên tầng 1 ⇒ sinα > 0 ↔ z > 0.
 - **FR2-031** Đêm 2: 2 đảo r 28 tâm (0,0,0) và (70,0,0); cầu x∈[26,44], z∈[−2,2] (y = 0); ngoài các vùng này là rơi. Bục nhảy r 1 tại (20,0,18), (50,0,−18): chân chạm bục (XZ ≤ 1, grounded) → vy = 14, vận tốc ngang 24 m/s hướng tâm đảo kia, giữ tới khi chạm đất (move không ghi đè, vẫn lướt được). Đèn L1…L6, điểm đom đóm 12/đảo, điểm Bóng Mực 8/đảo r 26 tại 22.5°+45°k. Xuất phát (0,0,0) ★.
 - **FR2-032** Đêm 3: đảo r 45; tầng 1 y=3: 12 ≤ r ≤ 24 và z > 0; tầng 2 y=6: r ≤ 8; vách đứng: không đi lên được (chặn di chuyển ngang nếu mặt đất đích cao hơn chân > 0.01 m), bước ra khỏi mép thì rơi xuống tầng dưới. Dốc rộng 3 m dọc bán kính tại 30°/150°: r 30 → 24, y nội suy tuyến tính 0 → 3. Bục (0,3,13): vy 12, ngang 8 m/s hướng −Z. Tháp r 2 tại tâm, cao 8: va chạm hình trụ. Đèn L1…L7, 30 điểm đom đóm, 16 điểm Bóng Mực r 43. Xuất phát (0,0,0)? ★ — (0,0,0) nằm trong tháp; giả định xuất phát (0,0,−30) mặt +Z.
 - **FR2-033** Gió (Đêm 3, `wind_enabled` mặc định true): cơn gió thứ k bắt đầu tại tick 1800k (k ≥ 1), kéo dài 300 tick, hướng `dir_deg` PRNG [0,360); đẩy người chơi 2 m/s theo hướng đó (cộng vào di chuyển). Snapshot `wind {active, dir_deg}` (dir_deg của cơn gần nhất, 0 nếu chưa có). Báo trước 2 s chỉ ở web.
@@ -182,7 +182,6 @@ Các dấu ★ trong FR được giữ nguyên từ bản nháp và biểu thị
 ## 4. Câu hỏi nên gửi trợ giảng lab board (★)
 1. Bóng Mực ở `spawning` bao lâu, `wander` di chuyển thế nào?
 2. `player.invuln` trong snapshot là boolean hay số giây?
-3. Góc "ngược chiều kim đồng hồ nhìn từ trên": điểm 90° là +Z hay −Z?
 4. Xuất phát Đêm 2, Đêm 3 ở đâu ((0,0,0) Đêm 3 nằm trong tháp)?
 5. `night_start` ghi ở tick 0 hay tick 1? Gió Lạc `removed` còn trong mảng snapshot không?
 
