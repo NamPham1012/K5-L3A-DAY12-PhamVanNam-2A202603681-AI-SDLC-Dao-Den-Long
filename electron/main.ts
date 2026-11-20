@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -18,6 +18,12 @@ function readEntries(): LeaderboardEntry[] {
   if (!data || typeof data !== 'object' || !Array.isArray((data as {entries?:unknown}).entries)) throw new Error('Invalid leaderboard file');
   return topEntries((data as {entries:LeaderboardEntry[]}).entries);
 }
+function addEntry(entry:LeaderboardEntry):LeaderboardEntry[] {
+  const entries=topEntries([...readEntries(),entry]);
+  fs.mkdirSync(path.dirname(leaderboardFile()), {recursive:true});
+  fs.writeFileSync(leaderboardFile(),JSON.stringify({entries},null,2)+'\n');
+  return entries;
+}
 let win: BrowserWindow | null = null;
 let benchComplete = false;
 let peakMemory = 0;
@@ -27,21 +33,29 @@ function sampleRss(): void {
   peakMemory = Math.max(peakMemory, totalKb / 1024);
 }
 app.whenReady().then(async () => {
+  Menu.setApplicationMenu(null);
   const exportPath = value('--export-leaderboard');
   if (args.includes('--export-leaderboard')) {
     if (!exportPath) throw new Error('Missing leaderboard output path');
     fs.writeFileSync(exportPath, JSON.stringify({entries:readEntries()}, null, 2) + '\n');
     app.exit(0); return;
   }
+  if (args.includes('--add-leaderboard-entry')) {
+    const input=value('--add-leaderboard-entry');
+    if (!input) throw new Error('Missing leaderboard entry');
+    addEntry(JSON.parse(input) as LeaderboardEntry); app.exit(0); return;
+  }
+  if (args.includes('--add-leaderboard-entry-file')) {
+    const input=value('--add-leaderboard-entry-file');
+    if (!input) throw new Error('Missing leaderboard entry file');
+    addEntry(JSON.parse(fs.readFileSync(input, 'utf8')) as LeaderboardEntry); app.exit(0); return;
+  }
   const bench = args.includes('--bench');
   const seed = Number(value('--seed') ?? 42), duration = Number(value('--duration') ?? 30), out = value('--out');
   if (bench && (!Number.isInteger(seed) || !Number.isFinite(duration) || duration <= 0 || !out)) throw new Error('Invalid benchmark arguments');
   ipcMain.handle('leaderboard:read', () => readEntries());
   ipcMain.handle('leaderboard:add', (_event, entry:LeaderboardEntry) => {
-    const entries = topEntries([...readEntries(), entry]);
-    fs.mkdirSync(path.dirname(leaderboardFile()), {recursive:true});
-    fs.writeFileSync(leaderboardFile(), JSON.stringify({entries}, null, 2) + '\n');
-    return entries;
+    return addEntry(entry);
   });
   ipcMain.on('bench:first-frame', (event) => { console.log('Benchmark: first frame'); event.sender.send('bench:load-ms', Date.now() - processStart); });
   ipcMain.on('bench:measure-start', () => { console.log('Benchmark: measurement started'); sampleRss(); timer = setInterval(sampleRss, 500); });
@@ -57,7 +71,7 @@ app.whenReady().then(async () => {
       app.exit(0);
     } catch (error) { console.error(error); app.exit(1); }
   });
-  win = new BrowserWindow({width:1280, height:720, useContentSize:true, fullscreen:false, show:true,
+  win = new BrowserWindow({width:1280, height:720, useContentSize:true, resizable:false, fullscreen:false, show:true,
     webPreferences:{preload:path.join(__dirname, 'preload.cjs'), contextIsolation:true, nodeIntegration:false, backgroundThrottling:false} });
   win.webContents.on('did-fail-load', (_event, code, description) => { console.error(`Renderer load failed: ${code} ${description}`); if (bench) app.exit(1); });
   win.webContents.on('render-process-gone', (_event, details) => { console.error(`Renderer exited: ${details.reason}`); if (bench) app.exit(1); });

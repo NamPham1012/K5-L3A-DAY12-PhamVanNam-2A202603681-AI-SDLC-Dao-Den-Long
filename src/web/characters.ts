@@ -283,8 +283,8 @@ export class RenderEntities {
     }
   }
 
-  public syncShades(shades: Shade[], player: Player, lanterns: Lantern[], safeRadius: number, animTime: number, colorblind = false): void {
-    this.instances.syncShades(shades, player, lanterns, safeRadius, animTime, colorblind);
+  public syncShades(shades: Shade[], player: Player, lanterns: Lantern[], safeRadius: number, animTime: number, colorblind = false, reducedMotion = false): void {
+    this.instances.syncShades(shades, player, lanterns, safeRadius, animTime, colorblind, reducedMotion);
   }
 
   // Gió Lạc: dải lụa xám xanh (#8FA3B8) lượn sóng

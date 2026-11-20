@@ -6,7 +6,7 @@ import { createScene } from './scene.js';
 import { RenderEntities } from './characters.js';
 import { frameMetrics } from '../bench/metrics.js';
 
-interface BenchBridge { firstFrame:()=>void; onLoadTime:(cb:(ms:number)=>void)=>void; measureStart:()=>void; benchDone:(data:unknown)=>void }
+interface BenchBridge { firstFrame:()=>void; onLoadTime:(cb:(ms:number)=>void)=>void; measureStart:()=>void; benchDone:(data:unknown)=>void; readLeaderboard:()=>Promise<import('../core/leaderboard.js').LeaderboardEntry[]>; addLeaderboard:(entry:import('../core/leaderboard.js').LeaderboardEntry)=>Promise<import('../core/leaderboard.js').LeaderboardEntry[]> }
 declare global { interface Window { desktop?: BenchBridge } }
 export function startBench(): void {
   const bridge = window.desktop;
@@ -66,7 +66,7 @@ export function startBench(): void {
     if (elapsed >= 3+duration && sampleCount) {
       const samples=Array.from(timings.subarray(0,sampleCount));
       const slowest=samples.map((dt,i)=>({time_s:timestamps[i],dt_ms:dt})).sort((a,b)=>b.dt_ms-a.dt_ms).slice(0,20);
-      bridge.benchDone({...frameMetrics(samples),slowest_frames:slowest,load_ms:loadMs,renderer:`Three.js r${THREE.REVISION}; ${rendererName}`}); return;
+      bridge.benchDone({...frameMetrics(samples),slowest_frames:slowest,canvas_w:renderer.domElement.width,canvas_h:renderer.domElement.height,load_ms:loadMs,renderer:`Three.js r${THREE.REVISION}; ${rendererName}`}); return;
     }
     requestAnimationFrame(frame);
   };

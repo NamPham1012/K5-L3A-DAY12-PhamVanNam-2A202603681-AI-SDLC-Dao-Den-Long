@@ -63,8 +63,11 @@ class GameApp {
         this.settings = settings;
         saveSettings(settings);
         this.input.sensitivity = settings.sensitivity;
+        this.input.bindings = settings.keys;
         this.audio.setVolume(settings.volume);
         document.body.classList.toggle('colorblind-mode', settings.colorblind);
+        document.body.classList.toggle('reduced-motion', settings.reducedMotion);
+        document.body.classList.toggle('large-text', settings.largeText);
       },
     }, this.settings);
     window.addEventListener('pointerdown', () => this.audio.unlock(), { once: true });
@@ -95,6 +98,7 @@ class GameApp {
     this.world = new World(seed, undefined, TUNING, night);
     this.sceneCtx.loadMap(this.world.map);
     this.entities.clearAll();
+    this.hud.resetAlerts();
     this.input.yawDeg = 0;
     this.lastWorldState = this.world.state;
   }
@@ -158,7 +162,7 @@ class GameApp {
         if (this.world.state === 'playing' || this.world.state === 'paused') {
           const inputFrame = this.input.pollInput();
           this.world.step(inputFrame);
-          for (const event of this.world.events) this.audio.cue(event.name);
+          for (const event of this.world.events) { this.audio.cue(event.name); if(event.name==='shade_spawned') this.hud.notifySpawn(this.world, String(event.data.id)); }
         }
         this.accumulator -= this.FIXED_STEP;
       }
@@ -181,6 +185,8 @@ class GameApp {
             won: true,
             nightScore: this.world.score,
             totalScore: this.getTotalWonScore(),
+            nightsWon: this.wonNightScores.size,
+            seed: this.currentSeed,
           });
         } else if (this.world.state === 'lost') {
           const reason =
@@ -195,12 +201,14 @@ class GameApp {
             won: false,
             nightScore: this.world.score,
             totalScore: this.getTotalWonScore(),
+            nightsWon: this.wonNightScores.size,
+            seed: this.currentSeed,
             lossReason: reason,
           });
         }
       }
 
-      this.hud.update(this.world);
+      this.hud.update(this.world, this.camera);
     }
 
     // Ánh sáng tăng dần theo số đèn sáng / tổng đèn
@@ -217,7 +225,8 @@ class GameApp {
       this.world.lanterns,
       this.world.tuning.safe_radius,
       animClock,
-      this.settings.colorblind
+      this.settings.colorblind,
+      this.settings.reducedMotion
     );
     this.entities.syncDrifters(this.world.drifters, this.world.player, animClock);
     this.entities.syncCharms(this.world.charms, animClock);

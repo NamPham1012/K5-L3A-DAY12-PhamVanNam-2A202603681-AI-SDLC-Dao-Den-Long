@@ -1,0 +1,18 @@
+{
+  "entries": [
+    {
+      "achieved_at": "2026-11-20T10:01:00Z",
+      "score": 240,
+      "name": "Đèn_Thu",
+      "seed": 42,
+      "nights_won": 2
+    },
+    {
+      "achieved_at": "2026-11-20T10:00:00Z",
+      "score": 120,
+      "name": "Test_May",
+      "seed": 7,
+      "nights_won": 1
+    }
+  ]
+}

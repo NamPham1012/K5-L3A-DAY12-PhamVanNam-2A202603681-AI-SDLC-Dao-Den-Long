@@ -1,12 +1,14 @@
 {
   "contract_version": "1.3",
-  "frames": 9428,
-  "avg_fps": 314.2802854790374,
-  "p1_low_fps": 90.6748114918381,
-  "frame_ms_p95": 4.299999999999272,
-  "load_ms": 315.8671875,
+  "frames": 8380,
+  "avg_fps": 279.3361266946003,
+  "p1_low_fps": 91.07665618562109,
+  "frame_ms_p95": 4.5,
+  "canvas_w": 1280,
+  "canvas_h": 720,
+  "load_ms": 324.457275390625,
   "renderer": "Three.js r160; ANGLE (AMD, AMD Radeon(TM) 780M (0x00001900) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-  "peak_mem_mb": 997.07421875,
+  "peak_mem_mb": 991.00390625,
   "vsync_off": true,
   "os": "win32 10.0.26200 x64"
 }

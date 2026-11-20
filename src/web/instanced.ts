@@ -22,13 +22,13 @@ export class InstancedEntities {
     for (const mesh of [this.body,this.eyes,this.smoke,this.motes]) { mesh.count=0; mesh.frustumCulled=false; mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(mesh); }
   }
 
-  public syncShades(shades: Shade[], player: Player, lanterns: Lantern[], safeRadius:number, time:number, colorblind:boolean):void {
+  public syncShades(shades: Shade[], player: Player, lanterns: Lantern[], safeRadius:number, time:number, colorblind:boolean, reducedMotion=false):void {
     let count=0, smokeCount=0;
     const fear=(safeRadius+3.5)**2;
     for (let i=0; i<shades.length && count<SHADE_LIMIT; i++) {
       const shade=shades[i]; const p=phase(shade.id); let near=false;
       for (let j=0;j<lanterns.length;j++) { const l=lanterns[j]; const dx=shade.pos[0]-l.pos[0],dz=shade.pos[2]-l.pos[2]; if(l.lit && dx*dx+dz*dz<=fear){near=true;break;} }
-      const jitter=near && shade.state!=='stunned';
+      const jitter=near && shade.state!=='stunned' && !reducedMotion;
       const x=shade.pos[0]+(jitter?Math.sin(time*42+p)*0.12:0), y=shade.pos[1], z=shade.pos[2]+(jitter?Math.cos(time*38+p)*0.12:0);
       const yaw=Math.atan2(player.pos[0]-shade.pos[0],player.pos[2]-shade.pos[2]);
       const pulse=Math.sin(time*5.2+p); const stunned=shade.state==='stunned';

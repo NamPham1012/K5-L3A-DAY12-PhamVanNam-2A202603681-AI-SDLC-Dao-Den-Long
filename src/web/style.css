@@ -6,14 +6,20 @@
 
 body {
   --warning-color: #ff5a5f;
+  --ui-font: 18px;
   overflow: hidden;
   background-color: #0e1430;
   color: #f5f1e6;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: var(--ui-font);
   user-select: none;
 }
 
 body.colorblind-mode { --warning-color: #ffffff; }
+body.large-text { --ui-font: 22.5px; }
+body.large-text .modal-box h1 { font-size: 37.5px; }
+body.large-text .hud-shade-arrow { font-size: 35px; }
+body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::after { animation: none !important; transition: none !important; }
 body.colorblind-mode .danger-blink::before { content: '⚠ '; }
 body.colorblind-mode .danger-blink { border-style: dashed; }
 
@@ -61,7 +67,7 @@ canvas {
   border-radius: 8px;
   padding: 8px 14px;
   color: #f5f1e6;
-  font-size: 15px;
+  font-size: var(--ui-font);
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(4px);
@@ -75,7 +81,7 @@ canvas {
   background: rgba(242, 193, 78, 0.92);
   color: #120a1a;
   font-weight: 700;
-  font-size: 15px;
+  font-size: var(--ui-font);
   padding: 8px 18px;
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(255, 179, 71, 0.4);
@@ -87,7 +93,7 @@ canvas {
   animation: pulseDanger 0.8s infinite alternate;
 }
 
-.settings-box { text-align: left; }
+.settings-box { text-align: left; max-height: 92vh; overflow-y: auto; }
 .settings-box h1 { text-align: center; }
 .settings-box label:not(.settings-checkbox) { display: flex; justify-content: space-between; margin: 18px 0 8px; }
 .settings-box input[type='range'] { width: 100%; accent-color: #f2c14e; }
@@ -95,6 +101,17 @@ canvas {
 .settings-checkbox input { width: 20px; height: 20px; accent-color: #f2c14e; }
 .settings-box .ui-btn { width: 100%; }
 .ui-btn:focus-visible, .settings-box input:focus-visible { outline: 3px solid #fff6c2; outline-offset: 3px; }
+.key-bindings { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:12px 0; }
+.key-binding { text-align:left; padding:8px; }
+#key-error, #score-error { color:var(--warning-color); min-height:1.4em; }
+.hud-subtitle { position:fixed; left:50%; bottom:125px; transform:translateX(-50%); background:#141c3b; color:#fff; padding:10px 18px; border:1px solid #f2c14e; text-align:center; font-size:var(--ui-font); }
+.hud-shade-arrow { position:fixed; color:#f2c14e; font-size:28px; text-shadow:0 2px 3px #000; }
+.table-scroll { overflow-x:auto; }
+.leaderboard-box { max-width:900px; max-height:90vh; overflow:auto; }
+table { width:100%; border-collapse:collapse; text-align:left; font-size:var(--ui-font); }
+th,td { padding:10px; border-bottom:1px solid #596276; }
+#score-form { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:12px 0; }
+#score-form input { font-size:var(--ui-font); max-width:13ch; }
 
 @keyframes pulseDanger {
   from {
@@ -142,13 +159,13 @@ canvas {
 }
 
 .subtitle {
-  font-size: 15px;
+  font-size: var(--ui-font);
   color: #c9b48a;
   margin-bottom: 20px;
 }
 
 .quote-text {
-  font-size: 17px;
+  font-size: var(--ui-font);
   line-height: 1.5;
   color: #ffe9b0;
   font-style: italic;
@@ -156,7 +173,7 @@ canvas {
 }
 
 .total-score {
-  font-size: 18px;
+  font-size: var(--ui-font);
   font-weight: 700;
   color: #f2c14e;
   margin: 10px 0 22px;
@@ -174,7 +191,7 @@ canvas {
   border: 1px solid rgba(242, 193, 78, 0.5);
   background: rgba(255, 255, 255, 0.08);
   color: #f5f1e6;
-  font-size: 16px;
+  font-size: var(--ui-font);
   font-weight: 600;
   padding: 11px 18px;
   border-radius: 8px;
@@ -203,7 +220,7 @@ canvas {
 
 .controls-hint {
   margin-top: 18px;
-  font-size: 12px;
+  font-size: var(--ui-font);
   color: #8fa3b8;
   line-height: 1.4;
 }

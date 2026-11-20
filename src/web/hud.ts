@@ -1,4 +1,5 @@
 import { World } from '../core/world.js';
+import * as THREE from 'three';
 
 function formatTimeMMSS(seconds: number): string {
   const s = Math.max(0, Math.ceil(seconds));
@@ -19,6 +20,15 @@ export class HudOverlay {
   private dashEl: HTMLElement;
   private pulseEl: HTMLElement;
   private promptEl: HTMLElement;
+  private subtitleEl: HTMLElement;
+  private arrowEl: HTMLElement;
+  private marker = new THREE.Vector3();
+  private messageUntil = 0;
+  private arrowUntil = 0;
+  private target = new THREE.Vector3();
+  private warnedLanterns = new Set<string>();
+  private warnedCountdown = false;
+  private warnedWindTick = -1;
 
   constructor() {
     this.container = document.createElement('div');
@@ -32,6 +42,8 @@ export class HudOverlay {
         <div class="hud-card">🏮 <span id="hud-lanterns">0/5</span> · 🏆 <span id="hud-score">0</span></div>
       </div>
       <div id="hud-prompt" class="hud-prompt hidden">E — Nạp ánh sáng (0/10)</div>
+      <div id="hud-subtitle" class="hud-subtitle hidden" role="status" aria-live="polite"></div>
+      <div id="hud-shade-arrow" class="hud-shade-arrow hidden" aria-label="Hướng Bóng Mực mới xuất hiện">▲</div>
       <div class="hud-bottom">
         <div class="hud-card">✨ Đom đóm: <span id="hud-motes">0/10</span></div>
         <div class="hud-card">💨 Lướt (Shift): <span id="hud-dash">SẴN SÀNG</span></div>
@@ -50,6 +62,8 @@ export class HudOverlay {
     this.dashEl = document.getElementById('hud-dash')!;
     this.pulseEl = document.getElementById('hud-pulse')!;
     this.promptEl = document.getElementById('hud-prompt')!;
+    this.subtitleEl = document.getElementById('hud-subtitle')!;
+    this.arrowEl = document.getElementById('hud-shade-arrow')!;
   }
 
   public setVisible(visible: boolean): void {
@@ -60,8 +74,33 @@ export class HudOverlay {
     }
   }
 
-  public update(world: World): void {
+  public resetAlerts(): void { this.warnedLanterns.clear(); this.warnedCountdown=false; this.warnedWindTick=-1; this.messageUntil=0; this.arrowUntil=0; this.arrowEl.classList.add('hidden'); this.subtitleEl.classList.add('hidden'); }
+
+  public notifySpawn(world:World, id:string):void {
+    const shade=world.shades.find(s=>s.id===id); if(!shade) return;
+    this.target.set(...shade.pos); this.arrowUntil=performance.now()+4000;
+    this.notify('Bóng Mực xuất hiện');
+  }
+  private notify(text:string):void { this.subtitleEl.textContent=text; this.subtitleEl.classList.remove('hidden'); this.messageUntil=performance.now()+2500; }
+
+  public update(world: World, camera?: THREE.Camera): void {
     const p = world.player;
+    const now=performance.now();
+    if(now>this.messageUntil) this.subtitleEl.classList.add('hidden');
+    if(world.state==='playing' && world.night===3 && world.wind_enabled && !world.wind.active && world.sim_tick>0 && (world.sim_tick+120)%1800===0 && this.warnedWindTick!==world.sim_tick) { this.warnedWindTick=world.sim_tick; this.notify('Gió sắp thổi'); }
+    if(world.time_left_s<=10 && !this.warnedCountdown) {this.warnedCountdown=true;this.notify('10 giây cuối');}
+    for(const l of world.lanterns) {
+      if(l.lit && l.fuel_u<1800 && !this.warnedLanterns.has(l.id)) {this.warnedLanterns.add(l.id);this.notify(`Đèn ${l.id} sắp cạn dầu`);}
+      else if(!l.lit || l.fuel_u>=1800) this.warnedLanterns.delete(l.id);
+    }
+    if(camera && now<this.arrowUntil) {
+      this.marker.copy(this.target).project(camera);
+      let x=this.marker.x, y=this.marker.y; if(this.marker.z>1){x=-x;y=-y;}
+      const angle=Math.atan2(x,y); const radiusX=Math.max(20,innerWidth/2-36), radiusY=Math.max(20,innerHeight/2-36);
+      const factor=1/Math.max(Math.abs(Math.sin(angle))/radiusX,Math.abs(Math.cos(angle))/radiusY);
+      this.arrowEl.style.left=`${innerWidth/2+Math.sin(angle)*factor}px`; this.arrowEl.style.top=`${innerHeight/2-Math.cos(angle)*factor}px`;
+      this.arrowEl.style.transform=`translate(-50%,-50%) rotate(${angle}rad)`; this.arrowEl.classList.remove('hidden');
+    } else this.arrowEl.classList.add('hidden');
     this.flamesEl.textContent = '🔥'.repeat(Math.max(0, p.flames)) || 'Hết';
     this.nightEl.textContent = `Đêm ${world.night}`;
 

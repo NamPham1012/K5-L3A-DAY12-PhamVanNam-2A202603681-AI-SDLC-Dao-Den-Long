@@ -13,7 +13,7 @@ function instant(value: string): number {
   return (((dayNumber*24 + hour)*60 + minute-zone)*60+second)*1000 + Number((m[7] ?? '').padEnd(3,'0') || 0);
 }
 export function validateEntry(entry: LeaderboardEntry): boolean {
-  return /^[A-Za-z0-9_]{3,12}$/.test(entry.name) && Number.isInteger(entry.score) && entry.score >= 0 && Number.isInteger(entry.nights_won) && entry.nights_won >= 0 && entry.nights_won <= 3 && Number.isInteger(entry.seed) && Number.isFinite(instant(entry.achieved_at));
+  return /^[\p{L}0-9_]{3,12}$/u.test(entry.name) && Number.isInteger(entry.score) && entry.score >= 0 && Number.isInteger(entry.nights_won) && entry.nights_won >= 0 && entry.nights_won <= 3 && Number.isInteger(entry.seed) && Number.isFinite(instant(entry.achieved_at));
 }
 export function topEntries(entries: LeaderboardEntry[]): LeaderboardEntry[] {
   if (!entries.every(validateEntry)) throw new Error('Invalid leaderboard entry');
