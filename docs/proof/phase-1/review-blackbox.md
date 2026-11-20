@@ -20,3 +20,11 @@ Cách làm: chạy `node dist/headless.js` (Node 22, Linux) với scenario/input
 | 13 | s8: random mặc định, flames 99, 4000 tick | S1,S2 lúc dựng; `shade_spawned` S3@1800, S4@3600; 50 mote | đúng | Đạt |
 
 Nhận xét: chưa thấy lệch Test Contract ở nhóm 2. Chưa kiểm: hiệu năng (SC-002), giao diện (nhóm 3).
+
+## Re-review sau khi sửa web (A/D đảo chiều + hình ảnh), 2026-11-20 16:05
+
+- `git diff` HEAD: chỉ đổi `src/web/*` và `README.md`; `src/core`, `src/headless`, `tests`, `game.contract.json` không đổi.
+- Chạy lại kịch bản #5, #8, #10 ở trên: kết quả y hệt (score 110; hit tick 35 dropped 2; won tick 1 score 748).
+- Seed 7, 3000 tick: SHA256 `e305decb…1de24d` trên Linux/Node 22, **trùng** hash Antigravity đo trên Windows ⇒ phần sáng tạo không đổi đầu ra headless, và tất định cả khác hệ điều hành.
+- Sửa A/D: đổi dấu `move.x` ở lớp web, đúng theo phân tích hướng camera; lõi giữ đúng công thức xoay của contract.
+- Chưa kiểm: hiển thị thực tế (cần người chơi thử + ảnh).

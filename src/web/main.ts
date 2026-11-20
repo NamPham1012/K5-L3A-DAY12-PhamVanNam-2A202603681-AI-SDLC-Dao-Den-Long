@@ -19,6 +19,7 @@ class GameApp {
 
   private lastTime: number = performance.now();
   private accumulator: number = 0;
+  private animTime: number = 0;
   private readonly FIXED_STEP: number = 1 / 60;
 
   constructor() {
@@ -56,9 +57,9 @@ class GameApp {
     let dt = (now - this.lastTime) / 1000;
     this.lastTime = now;
 
-    // Cap dt to prevent spiral of death on lag
     if (dt > 0.1) dt = 0.1;
     this.accumulator += dt;
+    this.animTime += dt;
 
     if (this.input.consumeReset()) {
       this.currentSeed = Math.floor(Math.random() * 100000);
@@ -67,31 +68,37 @@ class GameApp {
     }
 
     // Fixed timestep 60Hz loop calling pure core.step()
-    while (this.accumulator >= this.FIX_STEP) {
+    while (this.accumulator >= this.FIXED_STEP) {
       const inputFrame = this.input.pollInput();
       this.world.step(inputFrame);
-      this.accumulator -= this.FIX_STEP;
+      this.accumulator -= this.FIXED_STEP;
     }
 
-    // Sync graphics with core state
-    this.entities.syncPlayer(this.world.player, this.input.yawDeg);
-    this.entities.syncLanterns(this.world.lanterns);
-    this.entities.syncShades(this.world.shades);
-    this.entities.syncMotes(this.world.motes);
+    // Đảo sáng dần theo số đèn đã thắp (0 -> 5)
+    const litCount = this.world.lanterns.filter((l) => l.lit).length;
+    this.sceneCtx.updateLighting(litCount);
 
-    // Update follow camera
+    // Đồng bộ hiển thị 3D với trạng thái lõi
+    this.entities.syncPlayer(this.world.player, this.input.yawDeg, this.animTime);
+    this.entities.syncLanterns(this.world.lanterns, this.animTime);
+    this.entities.syncShades(
+      this.world.shades,
+      this.world.player,
+      this.world.lanterns,
+      this.world.tuning.safe_radius,
+      this.animTime
+    );
+    this.entities.syncMotes(this.world.motes, this.animTime);
+
+    // Cập nhật camera bám sau
     updateFollowCamera(this.camera, this.world.player.pos, this.input.yawDeg);
 
-    // Update UI HUD
+    // Cập nhật HUD
     this.hud.update(this.world);
 
-    // Render 3D Scene
+    // Render
     this.renderer.render(this.sceneCtx.scene, this.camera);
   };
-
-  private get FIX_STEP(): number {
-    return this.FIXED_STEP;
-  }
 }
 
 new GameApp();

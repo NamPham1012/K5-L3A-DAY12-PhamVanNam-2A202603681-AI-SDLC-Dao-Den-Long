@@ -38,4 +38,12 @@ node dist/headless.js --seed 42 --night 1 --ticks 120 --out output.jsonl --snaps
 - `fall_enabled = false`: Người chơi bị chặn tại mép đảo bán kính 40m, không bị rơi hay phạt ngã.
 
 ## 5. Sáng tạo của tôi
-Phase 1 chưa thêm cơ chế sáng tạo ngoài PRD-0 (ưu tiên lõi đúng + bằng chứng). Nón lá và đèn lồng của Mây là yêu cầu của PRD-0, không tính là sáng tạo. Mọi phần sáng tạo sau này sẽ tắt khi chạy headless và có test chứng minh JSONL không đổi.
+Tất cả các yếu tố sáng tạo dưới đây **chỉ nằm ở lớp hiển thị web (`src/web/`)**, hoàn toàn tách khỏi lõi mô phỏng `src/core/` và **tắt ở chế độ headless**:
+
+- **Đèn lồng của Mây và đom đóm bay quanh**: Mây đội nón lá, cầm sào tre treo đèn lồng đỏ phát sáng ấm; độ sáng đèn tăng theo số đom đóm đang mang (`carried`) và đúng bằng đó con đom đóm bay vòng quanh đèn.
+- **Bóng Mực sinh động & phản ứng với ánh sáng**: Bóng Mực tím-đen nhấp nhô, có 2 mắt trắng phát sáng và vệt khói tím phía sau; khi bị choáng (`stunned`) chuyển xám nhạt, co nhỏ và nhắm mắt; khi tiến gần vùng sáng của đèn đã thắp thì run rẩy sợ ánh sáng.
+- **Đảo Bến sáng dần theo số đèn**: Khung cảnh đêm trăng sao, viền cát, cây cối/tre/đá/cỏ low-poly (đặt bằng PRNG riêng của web) và bến gỗ nhỏ ở mép đảo; mỗi khi thắp thêm đèn (0→5), ánh sáng môi trường (`HemisphereLight` & `AmbientLight`) tăng dần kèm quầng sáng vàng cam quanh đèn, đom đóm trên đất nhấp nháy bay lên xuống nhẹ.
+
+**Bằng chứng phần lõi và Test Contract không bị ảnh hưởng**:
+- `npm test`: **25/25 test files, 41/41 tests xanh** (100% pass).
+- So byte JSONL chạy headless (`node dist/headless.js --seed 7 --night 1 --ticks 3000 --snapshot-every 10`) trước và sau khi cập nhật lớp web: **giống hệt từng byte** (`48557 bytes`, SHA-256: `e305decbf9d057cea6ed6af97a58296f7a5f97e428d3c86ee2c69dcec61de24d`).
