@@ -13,7 +13,7 @@ describe('FR-003: Mote replenishment at tick 120', () => {
     cleanups.length = 0;
   });
 
-  it('replenishes 1 mote at tick 120 when available < needed and random_motes is true', () => {
+  it('replenishes 1 mote at tick 240 (Phase 2 Ticket-02 schedule) when random motes < 30 and random_motes is true', () => {
     const scenarioPath = path.resolve('temp_replenish_scenario.json');
     cleanups.push(scenarioPath);
 
@@ -28,33 +28,32 @@ describe('FR-003: Mote replenishment at tick 120', () => {
       })
     );
 
-    // Run 119 ticks -> should have 0 motes active
-    const res119 = runCliSync({
+    // Phase 2 Ticket-02: sinh thêm 1 đom đóm tại các tick 240, 480, ...
+    const res239 = runCliSync({
       seed: 42,
       night: 1,
-      ticks: 119,
-      snapshotEvery: 119,
+      ticks: 239,
+      snapshotEvery: 239,
       scenarioPath,
     });
-    cleanups.push(res119.outputPath);
-    expect(res119.status).toBe(0);
-    const lines119 = res119.readLines<any>();
-    const snap119 = lines119.find((l) => l.type === 'snapshot' && l.tick === 119);
-    expect(snap119.motes_active).toBe(0);
+    cleanups.push(res239.outputPath);
+    expect(res239.status).toBe(0);
+    const lines239 = res239.readLines<any>();
+    const snap239 = lines239.find((l) => l.type === 'snapshot' && l.tick === 239);
+    expect(snap239.motes_active).toBe(0);
 
-    // Run 120 ticks -> tick 120 should replenish 1 mote -> motes_active = 1
-    const res120 = runCliSync({
+    const res240 = runCliSync({
       seed: 42,
       night: 1,
-      ticks: 120,
-      snapshotEvery: 120,
+      ticks: 240,
+      snapshotEvery: 240,
       scenarioPath,
     });
-    cleanups.push(res120.outputPath);
-    expect(res120.status).toBe(0);
-    const lines120 = res120.readLines<any>();
-    const snap120 = lines120.find((l) => l.type === 'snapshot' && l.tick === 120);
-    expect(snap120.motes_active).toBe(1);
+    cleanups.push(res240.outputPath);
+    expect(res240.status).toBe(0);
+    const lines240 = res240.readLines<any>();
+    const snap240 = lines240.find((l) => l.type === 'snapshot' && l.tick === 240);
+    expect(snap240.motes_active).toBe(1);
   });
 
   it('never replenishes when random_motes is false', () => {

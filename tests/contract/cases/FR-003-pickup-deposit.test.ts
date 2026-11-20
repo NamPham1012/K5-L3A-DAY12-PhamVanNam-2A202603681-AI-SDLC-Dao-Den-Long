@@ -50,12 +50,12 @@ describe('FR-003 / FR-010: Pickup, deposit and light lantern in tick 1 (US2 Inde
     expect(res.status).toBe(0);
     const lines = res.readLines<any>();
 
-    // Snapshot tick 0
-    expect(lines[0].type).toBe('snapshot');
-    expect(lines[0].tick).toBe(0);
+    // Snapshot tick 0 (v1.1 có night_start tại tick 0 trước snapshot)
+    const snap0 = lines.find((l) => l.type === 'snapshot' && l.tick === 0);
+    expect(snap0).toBeDefined();
 
     // Events in tick 1
-    const events = lines.filter((l) => l.type === 'event');
+    const events = lines.filter((l) => l.type === 'event' && l.tick === 1);
     expect(events).toHaveLength(3);
 
     // Strict order: mote_picked -> deposit -> lantern_lit

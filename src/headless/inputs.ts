@@ -8,6 +8,8 @@ export interface RawInputFrame {
   jump?: boolean;
   interact?: boolean;
   pulse?: boolean;
+  dash?: boolean;
+  pause?: boolean;
 }
 
 export interface RawInputData {
@@ -81,14 +83,17 @@ export class InputParser {
       if (frame.pulse !== undefined && typeof frame.pulse !== 'boolean') {
         throw new Error('pulse must be a boolean');
       }
+      if (frame.dash !== undefined && typeof frame.dash !== 'boolean') {
+        throw new Error('dash must be a boolean');
+      }
+      if (frame.pause !== undefined && typeof frame.pause !== 'boolean') {
+        throw new Error('pause must be a boolean');
+      }
     }
 
     this.frames = data.frames;
   }
 
-  /**
-   * Builds an array of InputState for each tick from 0 to maxTicks - 1.
-   */
   public buildTimeline(maxTicks: number): InputState[] {
     const timeline: InputState[] = [];
     let currentMove: Vec2 = [0, 0];
@@ -96,6 +101,8 @@ export class InputParser {
     let currentJump = false;
     let currentInteract = false;
     let currentPulse = false;
+    let currentDash = false;
+    let currentPause = false;
 
     let frameIdx = 0;
 
@@ -112,18 +119,12 @@ export class InputParser {
           }
           currentMove = [x, z];
         }
-        if (frame.cam_yaw_deg !== undefined) {
-          currentYaw = frame.cam_yaw_deg;
-        }
-        if (frame.jump !== undefined) {
-          currentJump = frame.jump;
-        }
-        if (frame.interact !== undefined) {
-          currentInteract = frame.interact;
-        }
-        if (frame.pulse !== undefined) {
-          currentPulse = frame.pulse;
-        }
+        if (frame.cam_yaw_deg !== undefined) currentYaw = frame.cam_yaw_deg;
+        if (frame.jump !== undefined) currentJump = frame.jump;
+        if (frame.interact !== undefined) currentInteract = frame.interact;
+        if (frame.pulse !== undefined) currentPulse = frame.pulse;
+        if (frame.dash !== undefined) currentDash = frame.dash;
+        if (frame.pause !== undefined) currentPause = frame.pause;
         frameIdx++;
       }
 
@@ -133,6 +134,8 @@ export class InputParser {
         jump: currentJump,
         interact: currentInteract,
         pulse: currentPulse,
+        dash: currentDash,
+        pause: currentPause,
       });
     }
 

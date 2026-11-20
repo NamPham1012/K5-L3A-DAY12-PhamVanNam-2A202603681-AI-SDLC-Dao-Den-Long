@@ -49,9 +49,10 @@ describe('FR-010: Pre-lit all lanterns scenario (US2 / Edge case)', () => {
     expect(res.status).toBe(0);
     const lines = res.readLines<any>();
 
-    // Snapshot tick 0 must have score = 0 (no per_lantern for pre-lit)
-    expect(lines[0].type).toBe('snapshot');
-    expect(lines[0].score).toBe(0);
+    // Snapshot tick 0 must have score = 0 (v1.1 có night_start tại tick 0 trước snapshot)
+    const snap0 = lines.find((l) => l.type === 'snapshot' && l.tick === 0);
+    expect(snap0).toBeDefined();
+    expect(snap0.score).toBe(0);
 
     // Event in tick 1 is game_over won all_lit
     const gameOver = lines.find((l) => l.type === 'event' && l.name === 'game_over');

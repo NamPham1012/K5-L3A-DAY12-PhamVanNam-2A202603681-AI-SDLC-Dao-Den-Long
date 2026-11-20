@@ -1,4 +1,5 @@
 import { World } from '../core/world.js';
+import { TUNING } from '../core/tuning.js';
 import { InputParser } from './inputs.js';
 import { parseScenarioFile } from './scenario.js';
 import { JsonlWriter } from './jsonl.js';
@@ -12,7 +13,7 @@ function exitWithError(message: string, code: number = 2): never {
 
 function parseArgs(args: string[]): {
   seed: number;
-  night: number;
+  night: 1 | 2 | 3;
   ticks: number;
   out: string;
   snapshotEvery: number;
@@ -20,7 +21,7 @@ function parseArgs(args: string[]): {
   inputsPath?: string;
 } {
   let seed: number | undefined;
-  let night: number | undefined;
+  let night: 1 | 2 | 3 | undefined;
   let ticks: number | undefined;
   let out: string | undefined;
   let snapshotEvery = 10;
@@ -37,10 +38,10 @@ function parseArgs(args: string[]): {
       seed = parseInt(val, 10);
     } else if (arg === '--night') {
       const val = args[++i];
-      if (val !== '1') {
-        exitWithError(`--night must be 1, got '${val}'`);
+      if (val !== '1' && val !== '2' && val !== '3') {
+        exitWithError(`--night must be 1, 2, or 3, got '${val}'`);
       }
-      night = 1;
+      night = parseInt(val, 10) as 1 | 2 | 3;
     } else if (arg === '--ticks') {
       const val = args[++i];
       if (val === undefined || isNaN(Number(val)) || Number(val) < 0) {
@@ -115,7 +116,7 @@ export function runCli(): void {
     }
 
     const timeline = inputParser.buildTimeline(config.ticks);
-    const world = new World(config.seed, scenarioData);
+    const world = new World(config.seed, scenarioData, TUNING, config.night);
 
     const outDir = path.dirname(path.resolve(config.out));
     if (!fs.existsSync(outDir)) {
@@ -124,6 +125,14 @@ export function runCli(): void {
 
     const writer = new JsonlWriter(path.resolve(config.out));
 
+    // Contract v1.1 FR2-055: night_start tại tick 0 trước snapshot tick 0
+    writer.writeEvent({
+      type: 'event',
+      tick: 0,
+      name: 'night_start',
+      data: { night: config.night },
+    });
+
     // Tick 0 snapshot
     writer.writeSnapshot(world.getSnapshot());
 
@@ -131,18 +140,18 @@ export function runCli(): void {
     for (let k = 0; k < config.ticks; k++) {
       world.step(timeline[k]);
 
-      // 1. Events for this step
+      // 1. Events for this step (trước snapshot)
       for (const ev of world.events) {
         writer.writeEvent(ev);
       }
 
-      // 2. Snapshot if applicable
+      // 2. Bước 12: Snapshot nếu tới lượt
       if (world.tick % config.snapshotEvery === 0) {
         writer.writeSnapshot(world.getSnapshot());
       }
 
-      // Check if simulation stopped (game over)
-      if (world.state !== 'playing') {
+      // Dừng chỉ khi won hoặc lost (paused vẫn chạy tiếp tới đủ --ticks)
+      if (world.state === 'won' || world.state === 'lost') {
         break;
       }
     }

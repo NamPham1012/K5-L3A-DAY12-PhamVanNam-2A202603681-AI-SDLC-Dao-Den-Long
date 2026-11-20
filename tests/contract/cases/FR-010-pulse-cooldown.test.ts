@@ -60,7 +60,7 @@ describe('FR-010: Pulse cooldown preventing rapid repeated activations', () => {
     expect(pulseEvents[0].tick).toBe(1);
 
     const snap3 = lines.find((l) => l.type === 'snapshot' && l.tick === 3);
-    // Only 2 motes deducted (10 - 2 = 8)
-    expect(snap3.player.carried).toBe(8);
+    // Phase 2 Ticket-02: pulse_cost = 3 (10 - 3 = 7)
+    expect(snap3.player.carried).toBe(7);
   });
 });

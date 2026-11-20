@@ -1,9 +1,11 @@
-import { Player, Shade, Vec3 } from './entities.js';
+import { Player, Shade } from './entities.js';
 
 export interface PulseResult {
   triggered: boolean;
   stunnedIds: string[];
 }
+
+export const PULSE_PUSH_TICKS = 15;
 
 export function executePulse(
   player: Player,
@@ -12,41 +14,59 @@ export function executePulse(
   pulseCost: number,
   pulseStunS: number,
   pulsePushM: number,
-  pulseCooldownS: number
+  pulseCooldownS: number,
+  currentSimTick: number
 ): PulseResult {
-  if (player.pulse_cooldown_timer > 0 || player.carried < pulseCost) {
+  if (player.fall_respawn_ticks > 0) {
+    return { triggered: false, stunnedIds: [] };
+  }
+  if (player.pulse_cd_ticks > 0 || player.carried < pulseCost) {
     return { triggered: false, stunnedIds: [] };
   }
 
   player.carried -= pulseCost;
-  player.pulse_cooldown_timer = pulseCooldownS;
+  player.pulse_cd_ticks = Math.round(pulseCooldownS * 60); // 180 tick
+  player.pulse_cooldown_timer = player.pulse_cd_ticks / 60;
 
+  const stunTicks = Math.round(pulseStunS * 60); // 120 tick
   const pulseRadiusSq = pulseRadius * pulseRadius;
   const stunnedIds: string[] = [];
+
+  // Tâm = chân Mây + (0, 0.8, 0)
+  const centerX = player.pos[0];
+  const centerY = player.pos[1] + 0.8;
+  const centerZ = player.pos[2];
 
   const sortedShades = [...shades].sort((a, b) =>
     a.id.localeCompare(b.id, undefined, { numeric: true })
   );
 
   for (const shade of sortedShades) {
-    const dx = shade.pos[0] - player.pos[0];
-    const dz = shade.pos[2] - player.pos[2];
-    const distSq = dx * dx + dz * dz;
+    if (shade.interactable_from_tick > currentSimTick || shade.state === 'spawning') {
+      continue;
+    }
 
-    if (distSq <= pulseRadiusSq) {
+    const dx = shade.pos[0] - centerX;
+    const dy = shade.pos[1] - centerY;
+    const dz = shade.pos[2] - centerZ;
+    const dist3DSq = dx * dx + dy * dy + dz * dz;
+
+    if (dist3DSq <= pulseRadiusSq) {
       shade.state = 'stunned';
-      shade.stun_timer = pulseStunS;
+      shade.state_ticks_left = stunTicks;
+      shade.stun_timer = stunTicks / 60;
       stunnedIds.push(shade.id);
 
-      const dist = Math.sqrt(distSq);
+      // Đẩy lùi tổng 4m theo phương ngang trong 15 tick đầu; trùng vị trí đẩy theo +X
+      const horizDist = Math.sqrt(dx * dx + dz * dz);
       let dirX = 1;
       let dirZ = 0;
-      if (dist > 0.0001) {
-        dirX = dx / dist;
-        dirZ = dz / dist;
+      if (horizDist > 1e-4) {
+        dirX = dx / horizDist;
+        dirZ = dz / horizDist;
       }
-      shade.pos[0] += dirX * pulsePushM;
-      shade.pos[2] += dirZ * pulsePushM;
+      shade.push_ticks_left = PULSE_PUSH_TICKS;
+      shade.push_step = [(dirX * pulsePushM) / PULSE_PUSH_TICKS, (dirZ * pulsePushM) / PULSE_PUSH_TICKS];
     }
   }
 

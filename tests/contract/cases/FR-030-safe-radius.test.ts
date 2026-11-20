@@ -33,11 +33,12 @@ describe('FR-030: Lit lantern safe radius push for shades', () => {
       })
     );
 
+    // Phase 2 Ticket-02: shade đang ở trong vùng an toàn bị đẩy ra mép trong tối đa 30 tick
     const res = runCliSync({
       seed: 42,
       night: 1,
-      ticks: 5,
-      snapshotEvery: 1,
+      ticks: 35,
+      snapshotEvery: 5,
       scenarioPath,
     });
     cleanups.push(res.outputPath);
@@ -45,8 +46,8 @@ describe('FR-030: Lit lantern safe radius push for shades', () => {
     expect(res.status).toBe(0);
     const lines = res.readLines<any>();
 
-    // For each snapshot from tick 1 onwards, distance from S1 to L1 must be >= safe_radius
-    const snapshots = lines.filter((l) => l.type === 'snapshot' && l.tick >= 1);
+    // Sau tối đa 30 tick, khoảng cách từ S1 tới L1 phải >= safe_radius
+    const snapshots = lines.filter((l) => l.type === 'snapshot' && l.tick >= 30);
     expect(snapshots.length).toBeGreaterThan(0);
 
     for (const snap of snapshots) {

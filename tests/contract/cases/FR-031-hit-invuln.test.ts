@@ -40,8 +40,8 @@ describe('FR-031: Shade hit, invulnerability and death on 0 flames (US3 Independ
     expect(res.status).toBe(0);
     const lines = res.readLines<any>();
 
-    // Tick 1 has player_hit followed by game_over
-    const events = lines.filter((l) => l.type === 'event');
+    // Tick 1 has player_hit followed by game_over (v1.1 có night_start ở tick 0)
+    const events = lines.filter((l) => l.type === 'event' && l.tick === 1);
     expect(events).toHaveLength(2);
 
     expect(events[0].name).toBe('player_hit');

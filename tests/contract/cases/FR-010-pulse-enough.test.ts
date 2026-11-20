@@ -50,8 +50,8 @@ describe('FR-010: Pulse execution when sufficient motes carried (US4 Independent
     expect(res.status).toBe(0);
     const lines = res.readLines<any>();
 
-    const events = lines.filter((l) => l.type === 'event');
-    // Only pulse event, no player_hit event
+    const events = lines.filter((l) => l.type === 'event' && l.tick === 1);
+    // Only pulse event in tick 1, no player_hit event (v1.1 có night_start tick 0)
     expect(events).toHaveLength(1);
     expect(events[0].name).toBe('pulse');
     expect(events[0].data).toEqual({ stunned_ids: ['S1'] });

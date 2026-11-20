@@ -1,21 +1,4 @@
 import { Lantern, Vec3 } from './entities.js';
-import { round3 } from './world.js';
-
-export function createDefaultLanterns(): Lantern[] {
-  const lanterns: Lantern[] = [];
-  for (let i = 0; i < 5; i++) {
-    const angleRad = (i * 72 * Math.PI) / 180;
-    const x = 25 * Math.sin(angleRad);
-    const z = 25 * Math.cos(angleRad);
-    lanterns.push({
-      id: `L${i + 1}`,
-      pos: [round3(x), 0, round3(z)],
-      deposited: 0,
-      lit: false,
-    });
-  }
-  return lanterns;
-}
 
 export function findBestLanternToDeposit(
   playerPos: Vec3,
@@ -36,10 +19,10 @@ export function findBestLanternToDeposit(
   if (candidates.length === 0) return null;
 
   candidates.sort((a, b) => {
-    if (Math.abs(a.distSq - b.distSq) > 0.0001) {
+    if (Math.abs(a.distSq - b.distSq) > 1e-6) {
       return a.distSq - b.distSq;
     }
-    return a.lantern.id.localeCompare(b.lantern.id);
+    return a.lantern.id.localeCompare(b.lantern.id, undefined, { numeric: true });
   });
 
   return candidates[0].lantern;

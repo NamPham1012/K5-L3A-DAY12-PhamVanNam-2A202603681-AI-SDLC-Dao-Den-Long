@@ -9,7 +9,8 @@ describe('FR-061: game.contract.json tuning matches runtime', () => {
     const content = fs.readFileSync(contractPath, 'utf8');
     const contract = JSON.parse(content);
 
-    expect(contract.contract_version).toBe('1.0');
+    // Phase 2 (Ticket-02): contract_version nâng lên 1.1
+    expect(contract.contract_version).toBe('1.1');
     expect(contract.team).toBe('2A202603681-pham-van-nam');
     expect(contract.build_cmd).toBe('npm ci && npm run build');
     expect(contract.run_cmd).toBe('npm run play');

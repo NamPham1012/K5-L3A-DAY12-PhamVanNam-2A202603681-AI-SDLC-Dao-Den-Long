@@ -24,13 +24,11 @@ describe('World initialization and data model', () => {
     expect(world.lanterns[0].lit).toBe(false);
     expect(world.lanterns[0].deposited).toBe(0);
 
-    // Default motes: 50 active
-    expect(world.motes.filter((m) => m.active)).toHaveLength(50);
+    // Default motes (Phase 2 Ticket-02): 20 active on fixed spawn points
+    expect(world.motes.filter((m) => m.active)).toHaveLength(20);
 
-    // Default shades: 2
-    expect(world.shades).toHaveLength(2);
-    expect(world.shades[0].id).toBe('S1');
-    expect(world.shades[1].id).toBe('S2');
+    // Default shades (Phase 2 Ticket-02): 0 at tick 0 (2 spawn at tick 300)
+    expect(world.shades).toHaveLength(0);
   });
 
   it('should apply scenario overrides properly', () => {
@@ -56,7 +54,8 @@ describe('World initialization and data model', () => {
 
     expect(world.shades).toHaveLength(1);
     expect(world.shades[0].id).toBe('S9');
-    expect(world.shades[0].pos).toEqual([10, 1.0, 0]);
+    // Phase 2: giữ nguyên tọa độ theo tầng của scenario
+    expect(world.shades[0].pos).toEqual([10, 0, 0]);
 
     const l1 = world.lanterns.find((l) => l.id === 'L1');
     expect(l1?.deposited).toBe(5);

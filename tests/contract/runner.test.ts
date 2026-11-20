@@ -25,11 +25,13 @@ describe('FR-040 / FR-041 / FR-042: Headless CLI runner contract', () => {
     const lines = res.readLines<any>();
     expect(lines.length).toBeGreaterThanOrEqual(3);
 
-    // Snapshot tick 0
-    expect(lines[0].type).toBe('snapshot');
-    expect(lines[0].tick).toBe(0);
-    expect(lines[0].sim_tick).toBe(0);
-    expect(lines[0].state).toBe('playing');
+    // Phase 2 (v1.1): night_start tại tick 0 trước snapshot tick 0
+    expect(lines[0].type).toBe('event');
+    expect(lines[0].name).toBe('night_start');
+    expect(lines[1].type).toBe('snapshot');
+    expect(lines[1].tick).toBe(0);
+    expect(lines[1].sim_tick).toBe(0);
+    expect(lines[1].state).toBe('playing');
 
     // Snapshot tick 10
     const snap10 = lines.find((l) => l.type === 'snapshot' && l.tick === 10);
@@ -47,11 +49,12 @@ describe('FR-040 / FR-041 / FR-042: Headless CLI runner contract', () => {
   });
 
   it('FR-040: exits with code 2 on invalid night', () => {
+    // Phase 2 (v1.1): --night nhận 1, 2, 3 nên kiểm tra lỗi bằng 4
     const res = runCliSync({
-      rawArgs: ['dist/headless.js', '--seed', '1', '--night', '2', '--ticks', '10', '--out', 'dummy.jsonl'],
+      rawArgs: ['dist/headless.js', '--seed', '1', '--night', '4', '--ticks', '10', '--out', 'dummy.jsonl'],
     });
     expect(res.status).toBe(2);
-    expect(res.stderr).toContain('--night must be 1');
+    expect(res.stderr).toContain('--night must be 1, 2, or 3');
   });
 
   it('FR-040: exits with code 2 on missing required arguments', () => {
