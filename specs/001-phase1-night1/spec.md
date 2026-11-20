@@ -107,7 +107,7 @@ Cửa sổ 3D, camera theo sau, HUD hiển thị lửa, đom đóm đang mang/s�
 **Thế giới**
 - **FR-001**: Đảo tròn tâm (0,0,0), bán kính 40 m, mặt đất Y=0; người chơi xuất phát (0,0,0) và bị kẹp ở mép đảo bán kính 40 m.
 - **FR-002**: 5 đèn L1…L5 trên vòng bán kính 25 m, L1 tại (0,0,25), các đèn sau xoay 72° (theo chiều kim đồng hồ nhìn từ trên). Mỗi đèn: `id, pos, lit, deposited`.
-- **FR-003**: Khi `random_motes` mặc định/true: sinh 50 đom đóm ban đầu. Khi số đom đóm trên đảo + `carried` + tổng `deposited` của các đèn chưa thắp < số còn cần để thắp hết, sinh bù 1 con mỗi 2 giây. Vị trí sinh do PRNG có seed chọn trong bán kính 38 m, cách mỗi đèn và người chơi ≥ 3 m. Id `M1, M2…` tăng dần.
+- **FR-003**: Khi `random_motes` mặc định/true: sinh 50 đom đóm ban đầu. `needed = Σ (lantern_cost − deposited)` trên các đèn chưa thắp; `available = số đom đóm active trên đảo + player.carried`. Nếu `available < needed`, cứ mỗi 120 tick tính từ tick 0 sinh 1 đom đóm (tại tick 120, 240, …). Khi `random_motes=false` không bao giờ sinh bù. Vị trí sinh do PRNG có seed chọn trong bán kính 38 m, cách mỗi đèn và người chơi ≥ 3 m. Id `M1, M2…` tăng dần.
 - **FR-004**: Khi `random_shades` mặc định/true: có sẵn 2 shade lúc dựng, không phát `shade_spawned`; sau đó sinh 1 shade mỗi 30 giây tại tick 1800, 3600, …, tối đa 6 shade cùng lúc. Vị trí sinh trên vòng bán kính 38 m, góc do PRNG chọn, cách người chơi ≥ 15 m; thử lại tối đa 8 lần, nếu vẫn không đạt thì lấy điểm xa nhất trong các lần thử. Mỗi shade sinh trong lúc chơi phát `shade_spawned {id}`; id `S1, S2…` tăng dần. Shade ở trạng thái `chase` (hoặc `stunned`).
 
 **Mô hình tick (thứ tự cố định trong bước k → k+1)**
@@ -157,7 +157,7 @@ Cửa sổ 3D, camera theo sau, HUD hiển thị lửa, đom đóm đang mang/s�
 ### Measurable Outcomes
 
 - **SC-001**: 100% bộ test contract tự viết (≥ 15 scenario) qua; hai lần chạy cùng tham số cho `diff` rỗng.
-- **SC-002**: Headless 18 000 tick (5 phút game) chạy < 2 s trên laptop.
+- **SC-002**: Headless 18 000 tick (5 phút game) chạy < 2 s trên máy của người phát triển, cấu hình ghi trong `docs/proof/phase-1/perf.md`.
 - **SC-003**: Từ clone sạch, ≤ 3 lệnh để chạy được bản có giao diện trên macOS và Linux.
 - **SC-004**: Kiểm chứng thủ công, không phải tiêu chí chặn: quan sát một người chơi mới có thắng được Đêm 1 trong khoảng 3–5 phút ở lần thứ 2–3 hay không (cân bằng không quá khó).
 - **SC-006**: Clone sạch sang thư mục khác, chạy theo README được game và `npm test` xanh.
@@ -182,7 +182,7 @@ Cửa sổ 3D, camera theo sau, HUD hiển thị lửa, đom đóm đang mang/s�
 - Q: Đom đóm đánh rơi đi đâu? → A: rơi ra quanh chỗ bị chạm. `dropped = floor(carried × hit_drop_ratio)`; các con rơi được đặt trên vòng tròn bán kính 3 m quanh chân người chơi (> `pickup_radius`, nên không bị nhặt lại ngay trong tick đó), cách đều nhau, góc bắt đầu lấy từ PRNG; kẹp vào trong đảo; id mới tiếp bộ đếm `M…`; `motes_active` tăng tương ứng. Nhặt lại vẫn phát `mote_picked` và cộng `per_mote` như mọi đom đóm khác.
 - Q: Hết giờ là thắng hay thua? → A: Thua, `reason = "dawn"` (bình minh đến khi đảo chưa sáng hết).
 - Q: Rơi khỏi đảo? → A (giả định, chưa hỏi): `fall_enabled = false`; người chơi bị chặn ở mép đảo tròn bán kính 40 m.
-- Q: Sinh đom đóm mặc định và sinh bù thế nào? → A: 50 con ban đầu; nếu số trên đảo + carried + deposited của đèn chưa thắp < số còn cần để thắp hết, sinh bù 1 con mỗi 2 giây. Vị trí do PRNG chọn trong bán kính 38 m, cách đèn và người chơi ≥ 3 m.
+- Q: Sinh đom đóm mặc định và sinh bù thế nào? → A: 50 con ban đầu; `needed = Σ (lantern_cost − deposited)` của đèn chưa thắp, `available = số đom đóm active trên đảo + player.carried`. Khi `available < needed`, sinh 1 con mỗi 120 tick tính từ tick 0 (tick 120, 240, …); `random_motes=false` thì không sinh bù. Vị trí do PRNG chọn trong bán kính 38 m, cách đèn và người chơi ≥ 3 m.
 - Q: Sinh Bóng Mực mặc định thế nào? → A: 2 con có sẵn khi dựng, không phát sự kiện; sau đó thêm 1 con mỗi 30 giây ở tick 1800, 3600, …, tối đa 6 con cùng lúc. Sinh trên vòng bán kính 38 m theo góc PRNG, cách người chơi ≥ 15 m; thử lại tối đa 8 lần, nếu không đạt lấy điểm xa nhất. Sinh trong lúc chơi phát `shade_spawned {id}`.
 - Q: Kích thước đảo và vị trí đèn? → A: Đảo bán kính 40 m, người chơi bị kẹp tại mép; L1–L5 trên vòng 25 m, L1 tại (0,0,25), mỗi đèn xoay 72° theo chiều kim đồng hồ nhìn từ trên.
 - Q: SC-004 có chặn hoàn thành không? → A: Không; giữ SC-004 như kiểm chứng thủ công, cùng các tiêu chí SC-001 đến SC-006.
