@@ -10,12 +10,12 @@ description: "Nhiệm vụ triển khai Phase 1 — Đêm 1 · Đảo Bến"
 
 ## Nhóm 1 — Setup & harness
 
-- [ ] T001 Tạo `package.json`, `package-lock.json` với TypeScript strict, Three.js, Vite, esbuild, Vitest, scripts `build`, `test`, `verify`, `play`, `contract`; các script đa nền tảng, build headless `dist/headless.js`, `npm test` tự chuẩn bị build cần thiết và `prepare` cài hook. Kiểm chứng: `npm ci` và `npm run`.
-- [ ] T002 [P] Tạo `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `esbuild.config.mjs` với kiểm tra TypeScript strict và cấu hình build/test; kiểm chứng: `npm run build` sau khi có entry point nhóm 2 và 3.
-- [ ] T003 [P] Tạo `AGENTS.md` dưới 40 dòng, có lệnh build/test/headless, quy ước lõi thuần và yêu cầu chạy `npm test` trước khi báo xong; kiểm chứng: `node -e "const f=require('fs').readFileSync('AGENTS.md','utf8');if(f.trimEnd().split(/\r?\n/).length>=40)process.exit(1)"`.
-- [ ] T004 [P] Tạo `.agents/skills/verify-game/SKILL.md` mô tả chạy verify, thu thập bằng chứng thật và báo lỗi; kiểm chứng: `node -e "require('fs').accessSync('.agents/skills/verify-game/SKILL.md')"`.
-- [ ] T005 [P] Tạo `.githooks/pre-push` chạy `npm test` và `scripts/install-hooks.mjs` cấu hình `core.hooksPath=.githooks`, bảo đảm hook thực thi được trên macOS/Linux/Windows; kiểm chứng: `node scripts/install-hooks.mjs` rồi `git config --get core.hooksPath`; sau nhóm 2 kiểm tra test lỗi chặn push và test xanh cho push.
-- [ ] T006 [P] Tạo `.github/workflows/ci.yml` chạy Ubuntu, Node 20, `npm ci` và `npm test`; kiểm chứng: `npm ci && npm test` cục bộ sau nhóm 2 và xem kết quả CI sau push.
+- [x] T001 Tạo `package.json`, `package-lock.json` với TypeScript strict, Three.js, Vite, esbuild, Vitest, scripts `build`, `test`, `verify`, `play`, `contract`; các script đa nền tảng, build headless `dist/headless.js`, `npm test` tự chuẩn bị build cần thiết và `prepare` cài hook. Kiểm chứng: `npm ci` và `npm run`.
+- [x] T002 [P] Tạo `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `esbuild.config.mjs` với kiểm tra TypeScript strict và cấu hình build/test; kiểm chứng: `npm run build` sau khi có entry point nhóm 2 và 3.
+- [x] T003 [P] Tạo `AGENTS.md` dưới 40 dòng, có lệnh build/test/headless, quy ước lõi thuần và yêu cầu chạy `npm test` trước khi báo xong; kiểm chứng: `node -e "const f=require('fs').readFileSync('AGENTS.md','utf8');if(f.trimEnd().split(/\r?\n/).length>=40)process.exit(1)"`.
+- [x] T004 [P] Tạo `.agents/skills/verify-game/SKILL.md` mô tả chạy verify, thu thập bằng chứng thật và báo lỗi; kiểm chứng: `node -e "require('fs').accessSync('.agents/skills/verify-game/SKILL.md')"`.
+- [x] T005 [P] Tạo `.githooks/pre-push` chạy `npm test` và `scripts/install-hooks.mjs` cấu hình `core.hooksPath=.githooks`, bảo đảm hook thực thi được trên macOS/Linux/Windows; kiểm chứng: `node scripts/install-hooks.mjs` rồi `git config --get core.hooksPath`; sau nhóm 2 kiểm tra test lỗi chặn push và test xanh cho push.
+- [x] T006 [P] Tạo `.github/workflows/ci.yml` chạy Ubuntu, Node 20, `npm ci` và `npm test`; kiểm chứng: `npm ci && npm test` cục bộ sau nhóm 2 và xem kết quả CI sau push.
 
 ## Nhóm 2 — MVP headless: phải xanh trước nhóm 3
 

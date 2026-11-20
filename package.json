@@ -1,0 +1,25 @@
+{
+  "name": "dao-den-long",
+  "version": "0.1.0",
+  "description": "Game 3D Đảo Đèn Lồng - Phase 1",
+  "type": "module",
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "test": "vitest run",
+    "contract": "vitest run tests/contract",
+    "verify": "node scripts/verify.mjs",
+    "play": "vite",
+    "prepare": "node scripts/install-hooks.mjs"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/three": "^0.160.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "vitest": "^1.2.1"
+  }
+}
