@@ -91,8 +91,10 @@ export function stepPlayerPhysics(
     vz += 2.0 * Math.sin(windRad);
   }
 
-  // Vận tốc dọc (vy) & nhảy
+  // Vận tốc dọc (vy) & nhảy — tích phân chính xác: y += vy*dt + 0.5*g*dt^2, rồi vy += g*dt
+  const currentY = player.pos[1];
   let vy = player.vel[1];
+  let nextY = currentY;
   if (player.dash_ticks_left > 0) {
     // Lướt trên không giữ nguyên độ cao (không trọng lực)
     vy = 0;
@@ -101,13 +103,13 @@ export function stepPlayerPhysics(
       vy = JUMP_VY;
       player.grounded = false;
     }
+    nextY = currentY + vy * DT + 0.5 * GRAVITY * DT * DT;
     vy += GRAVITY * DT;
   }
 
   // Di chuyển ngang XZ (kiểm tra chặn vách/tháp theo map)
   const fromX = player.pos[0];
   const fromZ = player.pos[2];
-  const currentY = player.pos[1];
   let nextX = fromX + vx * DT;
   let nextZ = fromZ + vz * DT;
 
@@ -118,12 +120,9 @@ export function stepPlayerPhysics(
     vz = 0;
   }
 
-  // Di chuyển dọc Y (Euler bán ẩn: y += vy * dt)
-  let nextY = currentY + vy * DT;
-
   // Kiểm tra mặt đất tại (nextX, nextZ)
   const groundY = world.map.groundHeight(nextX, nextZ, currentY);
-  if (groundY !== null && nextY <= groundY && vy <= 0) {
+  if (groundY !== null && nextY <= groundY + 1e-6 && vy <= 0) {
     nextY = groundY;
     vy = 0;
     player.grounded = true;

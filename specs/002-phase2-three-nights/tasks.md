@@ -34,31 +34,31 @@ description: "Nhiệm vụ Phase 2 — Ba hòn đảo"
 
 **Kiểm chứng độc lập**: mỗi bản đồ có scenario riêng kiểm tra cầu, bục, tầng, dốc, vách, gió và các vị trí đèn/spawn; output xác nhận vị trí và trạng thái theo tick.
 
-- [ ] T016 [P] [US6] Tạo `tests/contract/cases/FR2-031-night2.test.ts` và `tests/contract/cases/FR2-032-night3.test.ts` kiểm tra hình học, cầu/vực, bục, dốc/tầng/tháp, đèn và spawn; kiểm chứng: `npm run contract -- FR2-03`.
-- [ ] T017 [US6] Tạo `src/core/maps/night2.ts`, `src/core/maps/night3.ts`, mở rộng `src/core/physics.ts` và `src/core/world.ts` cho `groundHeight(x,z,yHiện)`, chặn vách/tháp, bục và các trường Map theo [data-model.md](data-model.md); giữ giả định ★ của spec. Kiểm chứng: `npm run contract -- FR2-03`.
-- [ ] T018 [US6] Tạo `tests/contract/cases/FR2-033-wind.test.ts`; bổ sung gió Đêm 3 vào `src/core/physics.ts`, `src/core/world.ts`, `src/core/step.ts` theo FR2-033, kiểm tra tick 1800, 300 tick gió và seed. Kiểm chứng: `npm run contract -- FR2-033`.
+- [x] T016 [P] [US6] Tạo `tests/contract/cases/FR2-031-night2.test.ts` và `tests/contract/cases/FR2-032-night3.test.ts` kiểm tra hình học, cầu/vực, bục, dốc/tầng/tháp, đèn và spawn; kiểm chứng: `npm run contract -- FR2-03`.
+- [x] T017 [US6] Tạo `src/core/maps/night2.ts`, `src/core/maps/night3.ts`, mở rộng `src/core/physics.ts` và `src/core/world.ts` cho `groundHeight(x,z,yHiện)`, chặn vách/tháp, bục và các trường Map theo [data-model.md](data-model.md); giữ giả định ★ của spec. Kiểm chứng: `npm run contract -- FR2-03`.
+- [x] T018 [US6] Tạo `tests/contract/cases/FR2-033-wind.test.ts`; bổ sung gió Đêm 3 vào `src/core/physics.ts`, `src/core/world.ts`, `src/core/step.ts` theo FR2-033, kiểm tra tick 1800, 300 tick gió và seed. Kiểm chứng: `npm run contract -- FR2-033`.
 
 ### Gió Lạc — US1
 
 **Kiểm chứng độc lập**: scenario chase/steal và pulse cho thấy sự kiện, số đom đóm và các trạng thái flee/drop/removed đúng.
 
-- [ ] T019 [P] [US1] Tạo `tests/contract/cases/FR2-040-drifter.test.ts`, `tests/contract/cases/FR2-043-drifter-pulse.test.ts` cho spawn, idle/chase, cướp, flee, pulse thả đồ và biên bất tử/vùng an toàn. Kiểm chứng: `npm run contract -- drifter`.
-- [ ] T020 [US1] Tạo `src/core/drifters.ts`, cập nhật `src/core/entities.ts`, `src/core/step.ts`, `src/headless/scenario.ts`, `src/headless/jsonl.ts` theo [data-model.md](data-model.md) `Drifter.id`, `Drifter.pos`, `Drifter.state`, `Drifter.stolen`, `Drifter.timer`, `Drifter.điểm sinh`; cướp xử lý trước shade, giữ giả định ★. Kiểm chứng: `npm run contract -- drifter`.
+- [x] T019 [P] [US1] Tạo `tests/contract/cases/FR2-040-drifter.test.ts`, `tests/contract/cases/FR2-043-drifter-pulse.test.ts` cho spawn, idle/chase, cướp, flee, pulse thả đồ và biên bất tử/vùng an toàn. Kiểm chứng: `npm run contract -- drifter`.
+- [x] T020 [US1] Tạo `src/core/drifters.ts`, cập nhật `src/core/entities.ts`, `src/core/step.ts`, `src/headless/scenario.ts`, `src/headless/jsonl.ts` theo [data-model.md](data-model.md) `Drifter.id`, `Drifter.pos`, `Drifter.state`, `Drifter.stolen`, `Drifter.timer`, `Drifter.điểm sinh`; cướp xử lý trước shade, giữ giả định ★. Kiểm chứng: `npm run contract -- drifter`.
 
 ### Bùa Gió — US2
 
 **Kiểm chứng độc lập**: nhặt bùa → `charm_picked`, 600 tick hiệu lực, chạy 7,2 và dash không cooldown; bùa hồi sinh sau 2700 tick.
 
-- [ ] T021 [P] [US2] Tạo `tests/contract/cases/FR2-044-charm.test.ts` cho vị trí, nhặt, làm mới, dash, hồi sinh và trạng thái snapshot; kiểm chứng: `npm run contract -- FR2-044`.
-- [ ] T022 [US2] Tạo `src/core/charms.ts`, cập nhật `src/core/entities.ts`, `src/core/step.ts`, `src/headless/scenario.ts`, `src/headless/jsonl.ts` theo [data-model.md](data-model.md) `Charm.id`, `Charm.pos`, `Charm.available`, `Charm.respawn` và FR2-044. Kiểm chứng: `npm run contract -- FR2-044`.
+- [x] T021 [P] [US2] Tạo `tests/contract/cases/FR2-044-charm.test.ts` cho vị trí, nhặt, làm mới, dash, hồi sinh và trạng thái snapshot; kiểm chứng: `npm run contract -- FR2-044`.
+- [x] T022 [US2] Tạo `src/core/charms.ts`, cập nhật `src/core/entities.ts`, `src/core/step.ts`, `src/headless/scenario.ts`, `src/headless/jsonl.ts` theo [data-model.md](data-model.md) `Charm.id`, `Charm.pos`, `Charm.available`, `Charm.respawn` và FR2-044. Kiểm chứng: `npm run contract -- FR2-044`.
 
 ### Pause — US3
 
 **Kiểm chứng độc lập**: input pause/resume trên nhiều tick cho thấy `tick` tăng, `sim_tick` và timer đứng yên trong pause, event và snapshot chính xác.
 
-- [ ] T023 [P] [US3] Tạo `tests/contract/cases/FR2-002-pause.test.ts` kiểm tra cạnh lên, paused/resumed, đóng băng timer, spawn, TTL và tiếp tục mô phỏng; kiểm chứng: `npm run contract -- FR2-002`.
-- [ ] T024 [US3] Tạo `src/core/pause.ts`, cập nhật `src/core/step.ts`, `src/headless/inputs.ts`, `src/headless/jsonl.ts` theo FR2-002 và [data-model.md](data-model.md) `World.tick`, `World.sim_tick`, `World.state`; kiểm chứng: `npm run contract -- FR2-002`.
-- [ ] T025 [US6] Hoàn thiện `tests/contract/cases/FR2-051-all-nights.test.ts`, chạy tất cả scenario mới và test hồi quy; kiểm chứng: `npm run build && npm test`, chỉ chuyển nhóm C khi xanh.
+- [x] T023 [P] [US3] Tạo `tests/contract/cases/FR2-002-pause.test.ts` kiểm tra cạnh lên, paused/resumed, đóng băng timer, spawn, TTL và tiếp tục mô phỏng; kiểm chứng: `npm run contract -- FR2-002`.
+- [x] T024 [US3] Tạo `src/core/pause.ts`, cập nhật `src/core/step.ts`, `src/headless/inputs.ts`, `src/headless/jsonl.ts` theo FR2-002 và [data-model.md](data-model.md) `World.tick`, `World.sim_tick`, `World.state`; kiểm chứng: `npm run contract -- FR2-002`.
+- [x] T025 [US6] Hoàn thiện `tests/contract/cases/FR2-051-all-nights.test.ts`, chạy tất cả scenario mới và test hồi quy; kiểm chứng: `npm run build && npm test`, chỉ chuyển nhóm C khi xanh.
 
 ## Nhóm C — P2: web
 

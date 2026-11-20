@@ -1,11 +1,20 @@
 import { World } from './world.js';
 import { InputState, Shade } from './entities.js';
+import { handlePauseEdge } from './pause.js';
 import { stepPlayerPhysics } from './physics.js';
 import { findBestLanternToDeposit } from './lanterns.js';
 import { executePulse } from './pulse.js';
 import { updateShadeSafeZones, updateShadeMovement } from './shades.js';
 import { findHittingShade, applyShadeRecoil } from './damage.js';
 import { generateDroppedMotes, spawnRandomMoteOnEmptyPoint } from './motes.js';
+import {
+  tickDrifterTimers,
+  applyPulseToDrifters,
+  updateDriftersMovement,
+  checkDrifterSteals,
+  trySpawnDrifter,
+} from './drifters.js';
+import { checkCharmPickups } from './charms.js';
 
 export function stepWorld(world: World, input: InputState): void {
   if (world.state === 'won' || world.state === 'lost') {
@@ -40,35 +49,12 @@ export function stepWorld(world: World, input: InputState): void {
     pause: pauseIn,
   };
 
-  if (pauseEdge) {
-    if (world.state === 'playing') {
-      world.state = 'paused';
-      world.events.push({
-        type: 'event',
-        tick: nextTick,
-        name: 'paused',
-        data: {},
-      });
-      world.tick = nextTick;
-      return;
-    } else if (world.state === 'paused') {
-      world.state = 'playing';
-      world.events.push({
-        type: 'event',
-        tick: nextTick,
-        name: 'resumed',
-        data: {},
-      });
-    }
-  }
-
-  if (world.state === 'paused') {
-    world.tick = nextTick;
+  if (handlePauseEdge(world, pauseEdge, nextTick)) {
     return;
   }
 
   // =========================================================================
-  // BƯỚC 2: Giảm các bộ đếm (thời gian, hồi chiêu, bất tử, choáng, bùa, TTL, hồi bùa, hồi sinh)
+  // BƯỚC 2: Giảm các bộ đếm (thời gian, hồi chiêu, bất tử, choáng, bùa, TTL, hồi bùa, gió, hồi sinh)
   // =========================================================================
   const nextSimTick = world.sim_tick + 1;
   world.time_left_s = world.initial_duration_s - nextSimTick / 60;
@@ -111,6 +97,9 @@ export function stepWorld(world: World, input: InputState): void {
     shade.stun_timer = shade.state === 'stunned' ? shade.state_ticks_left / 60 : 0;
   }
 
+  // Giảm bộ đếm flee của Gió Lạc
+  tickDrifterTimers(world.drifters);
+
   // Giảm TTL đom đóm rơi
   for (const mote of world.motes) {
     if (!mote.active || mote.ttl_ticks === null) continue;
@@ -128,6 +117,19 @@ export function stepWorld(world: World, input: InputState): void {
         charm.available = true;
       }
     }
+  }
+
+  // Cập nhật gió mạnh Đêm 3 (bắt đầu tại 1800k, kéo dài 300 tick)
+  if (world.wind.active && world.wind.ticks_left > 0) {
+    world.wind.ticks_left -= 1;
+    if (world.wind.ticks_left === 0) {
+      world.wind.active = false;
+    }
+  }
+  if (world.night === 3 && world.wind_enabled && nextSimTick > 0 && nextSimTick % 1800 === 0) {
+    world.wind.active = true;
+    world.wind.dir_deg = world.rng.nextFloat(0, 360);
+    world.wind.ticks_left = 300;
   }
 
   // =========================================================================
@@ -155,7 +157,6 @@ export function stepWorld(world: World, input: InputState): void {
       if (dx * dx + dz * dz <= pickupRadiusSq && dy <= 1.5) {
         mote.active = false;
         player.carried += 1;
-        // Ticket-02: KHÔNG cộng điểm khi nhặt; cộng +10 khi nạp vào đèn!
         world.events.push({
           type: 'event',
           tick: nextTick,
@@ -164,6 +165,8 @@ export function stepWorld(world: World, input: InputState): void {
         });
       }
     }
+
+    checkCharmPickups(world, nextTick);
   }
 
   // =========================================================================
@@ -215,7 +218,7 @@ export function stepWorld(world: World, input: InputState): void {
   updateShadeSafeZones(sortedShades, litLanterns, tuning.safe_radius, nextSimTick);
 
   // =========================================================================
-  // BƯỚC 7: Tỏa Sáng (Pulse)
+  // BƯỚC 7: Tỏa Sáng (Pulse) — tác dụng lên Bóng Mực và Gió Lạc
   // =========================================================================
   if (pulseEdge) {
     const pulseRes = executePulse(
@@ -237,6 +240,8 @@ export function stepWorld(world: World, input: InputState): void {
         name: 'pulse',
         data: { stunned_ids: pulseRes.stunnedIds },
       });
+
+      applyPulseToDrifters(world, tuning.pulse_radius, nextSimTick, nextTick);
     }
   }
 
@@ -255,10 +260,13 @@ export function stepWorld(world: World, input: InputState): void {
       nextSimTick
     );
   }
+  updateDriftersMovement(world.drifters, player, nextSimTick);
 
   // =========================================================================
-  // BƯỚC 9: Chạm (Gió Lạc cướp trước ở Nhóm B, rồi Bóng Mực gây hit theo ID tăng dần)
+  // BƯỚC 9: Chạm — Gió Lạc cướp trước, rồi Bóng Mực gây hit (theo ID tăng dần)
   // =========================================================================
+  checkDrifterSteals(world, nextSimTick, nextTick);
+
   const hittingShade = findHittingShade(
     player,
     sortedShades,
@@ -349,6 +357,8 @@ export function stepWorld(world: World, input: InputState): void {
       });
     }
   }
+
+  trySpawnDrifter(world, nextSimTick);
 
   // =========================================================================
   // BƯỚC 11: Xét thắng/thua (no_flames > won/all_lit > dawn)

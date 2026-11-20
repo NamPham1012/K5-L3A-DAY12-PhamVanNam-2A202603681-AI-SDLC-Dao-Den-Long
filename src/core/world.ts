@@ -16,7 +16,7 @@ import {
   WorldState,
   Vec3,
 } from './entities.js';
-import { NightMap, getMapForNight } from './maps/night1.js';
+import { NightMap, getMapForNight } from './maps/index.js';
 import { stepWorld } from './step.js';
 
 export function round3(n: number): number {

@@ -51,16 +51,22 @@ describe('FR2-004 / FR2-005 / FR2-006: Jump, Dash and Fall/Respawn physics', () 
 
     const lines = res.readLines<any>();
     const snap1 = lines.find((l) => l.type === 'snapshot' && l.tick === 1);
-    // Euler bán ẩn: vy = 7 - 20/60 = 6.667, y = vy/60 = 0.111
+    // Tích phân chính xác: y += vy*dt + 0.5*g*dt^2, rồi vy += g*dt
     expect(snap1.player.grounded).toBe(false);
     expect(snap1.player.vel[1]).toBeCloseTo(7 - 20 / 60, 2);
-    expect(snap1.player.pos[1]).toBeGreaterThan(0.1);
+    expect(snap1.player.pos[1]).toBeCloseTo(7 / 60 - 10 / 3600, 3);
 
-    // Sau ~42 tick (2*7/20 = 0.7s) phải chạm đất lại
-    const snap50 = lines.find((l) => l.type === 'snapshot' && l.tick === 50);
-    expect(snap50.player.grounded).toBe(true);
-    expect(snap50.player.pos[1]).toBe(0);
-    expect(snap50.player.vel[1]).toBe(0);
+    // Đỉnh tại tick 21 phải ≈ 1.225 m
+    const snap21 = lines.find((l) => l.type === 'snapshot' && l.tick === 21);
+    expect(snap21.player.pos[1]).toBeCloseTo(1.225, 3);
+
+    // Chưa chạm đất ở tick 41, chạm đất đúng ở tick 42
+    const snap41 = lines.find((l) => l.type === 'snapshot' && l.tick === 41);
+    expect(snap41.player.grounded).toBe(false);
+    const snap42 = lines.find((l) => l.type === 'snapshot' && l.tick === 42);
+    expect(snap42.player.grounded).toBe(true);
+    expect(snap42.player.pos[1]).toBe(0);
+    expect(snap42.player.vel[1]).toBe(0);
   });
 
   it('FR2-005: dash moves at 14 m/s for 12 ticks, holds height in air, and has 90-tick cooldown', () => {
