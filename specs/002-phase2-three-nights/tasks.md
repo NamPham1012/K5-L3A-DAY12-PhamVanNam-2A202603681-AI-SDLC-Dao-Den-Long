@@ -86,11 +86,11 @@ description: "Nhiệm vụ Phase 2 — Ba hòn đảo"
 
 ## Nhóm D — Harness, bằng chứng và ghi chép
 
-- [ ] T033 [P] Cập nhật `AGENTS.md`, `.agents/skills/verify-game/SKILL.md` cho contract v1.1, 3 Đêm, regression và `npm run verify`; giữ AGENTS dưới 40 dòng. Kiểm chứng: `node -e "const f=require('fs').readFileSync('AGENTS.md','utf8');if(f.trimEnd().split(/\r?\n/).length>=40)process.exit(1)"` và đọc skill.
-- [ ] T034 Cập nhật `scripts/verify.mjs` để `npm run verify` chạy test và lưu log/JSONL thật vào `docs/proof/phase-2/`, giữ lại bằng chứng Phase 1; kiểm chứng: `npm run verify` và xem kết quả cùng mã thoát.
-- [ ] T035 [P] Cập nhật `docs/proof/traceability.md` và tạo `docs/proof/phase-2/` liên kết từng FR2 với JSONL/test, ảnh/clip có tiếng hoặc kết quả đo; nêu rõ DoD headless cho tính năng chỉ web còn giới hạn. Kiểm chứng: `npm run verify` và đối chiếu thủ công đường dẫn bằng chứng.
-- [ ] T036 [P] Cập nhật `docs/notes/phase2-changes.md`, `docs/notes/assumptions.md`, `docs/notes/ai-log.md`, `docs/notes/retro.md`, `README.md` cho Phase 2, giả định ★, xung đột góc, điều khiển, cách test và token; kiểm chứng: `git diff --check` và rà từng test được sửa.
-- [ ] T037 Đo headless 21.600 tick trên scenario không kết thúc sớm, lưu lệnh, `end.ticks`, thời gian, cấu hình máy vào `docs/proof/phase-2/perf.md`; kiểm chứng: `npm run contract -- performance` và xác nhận ≤30 giây hoặc ghi chưa đạt.
+- [x] T033 [P] Cập nhật `AGENTS.md`, `.agents/skills/verify-game/SKILL.md` cho contract v1.1, 3 Đêm, regression và `npm run verify`; giữ AGENTS dưới 40 dòng. Kiểm chứng: `node -e "const f=require('fs').readFileSync('AGENTS.md','utf8');if(f.trimEnd().split(/\r?\n/).length>=40)process.exit(1)"` và đọc skill.
+- [x] T034 Cập nhật `scripts/verify.mjs` để `npm run verify` chạy test và lưu log/JSONL thật vào `docs/proof/phase-2/`, giữ lại bằng chứng Phase 1; kiểm chứng: `npm run verify` và xem kết quả cùng mã thoát.
+- [x] T035 [P] Cập nhật `docs/proof/traceability.md` và tạo `docs/proof/phase-2/` liên kết từng FR2 với JSONL/test, ảnh/clip có tiếng hoặc kết quả đo; nêu rõ DoD headless cho tính năng chỉ web còn giới hạn. Kiểm chứng: `npm run verify` và đối chiếu thủ công đường dẫn bằng chứng.
+- [x] T036 [P] Cập nhật `docs/notes/phase2-changes.md`, `docs/notes/assumptions.md`, `docs/notes/ai-log.md`, `docs/notes/retro.md`, `README.md` cho Phase 2, giả định ★, xung đột góc, điều khiển, cách test và token; kiểm chứng: `git diff --check` và rà từng test được sửa.
+- [x] T037 Đo headless 21.600 tick trên scenario không kết thúc sớm, lưu lệnh, `end.ticks`, thời gian, cấu hình máy vào `docs/proof/phase-2/perf.md`; kiểm chứng: `npm run contract -- performance` và xác nhận ≤30 giây hoặc ghi chưa đạt.
 - [ ] T038 Chạy clone sạch theo `README.md`, `npm ci && npm run build && npm test && npm run verify`; rà `docs/proof/phase-2/`, `docs/proof/traceability.md`, CI và nhờ người/phiên khác review độc lập. Kiểm chứng: các lệnh trên và kết quả review lưu `docs/proof/phase-2/review.md`.
 
 ## Phụ thuộc và cơ hội song song

@@ -39,3 +39,34 @@
 - **Phase 1 (Planning & Tasks breakdown)**: ~28.000 tokens
 - **Phase 1 (Implementation Nhóm 1 & 2 & 3 & 4)**: ~85.000 tokens
 - **Tổng cộng Phase 1**: ~148.000 tokens (tương đương ~$0.30 chi phí API).
+
+---
+
+# Nhật ký Sử dụng AI (AI Log) — Phase 2 (Ba hòn đảo · Contract v1.1)
+
+## 1. Phân vai agent Phase 2
+- **Claude (claude.ai)**: phân tích Ticket-02, soạn bản nháp đặc tả Phase 2 (`docs/spec-draft-phase2.md`), và thực hiện **review hộp đen độc lập** sau từng nhóm tại `docs/proof/phase-2/review-blackbox-A.md` và `docs/proof/phase-2/review-blackbox-B.md` (chỉ đọc đặc tả + chạy CLI/JSONL, không sửa code).
+- **Codex**: chạy luồng Spec-Kit (`speckit-specify → plan → tasks`) sinh bộ tài liệu `specs/002-phase2-three-nights/{spec,plan,tasks,data-model,contracts/changes-v1.1}.md`.
+- **Antigravity**: triển khai mã nguồn và test contract chạy CLI thật theo `tasks.md` (Nhóm A, Nhóm B, Nhóm D) và sửa lỗi từ báo cáo review.
+
+## 2. Lời nhắc chính Phase 2
+- Nâng cấp bản web Phase 1 (sửa bug trái/phải theo hệ quy chiếu camera, trang trí Đảo Bến bằng PRNG riêng, kiểm chứng SHA-256 JSONL bất biến).
+- Triển khai Nhóm A (Contract v1.1, số liệu chuẩn Ticket-02, thứ tự tick 12 bước, Đêm 1 chuẩn hóa, sửa kỳ vọng test Phase 1 kèm `phase2-changes.md`).
+- Sửa lỗi tích phân nhảy từ `review-blackbox-A.md` và triển khai Nhóm B (Đêm 2, Đêm 3, gió, Gió Lạc, Bùa Gió, pause).
+- Triển khai Nhóm D (cập nhật `AGENTS.md`, skill `verify-game`, `scripts/verify.mjs`, `traceability.md`, `ai-log.md`, `retro.md`).
+
+## 3. Các lỗi AI phát sinh trong Phase 2 và cách phát hiện
+- **Lỗi 1: Sai số tích phân nhảy Euler bán ẩn (`vy += g·dt; y += vy·dt`)**:
+  - *Hiện tượng*: Ở Nhóm A, dùng Euler bán ẩn làm đỉnh nhảy tụt xuống `~1.196 m` và chạm đất lệch tick thay vì quỹ đạo giải tích đúng (`đỉnh ≈ 1.225 m` tại tick 21, chạm đất đúng tick 42).
+  - *Phát hiện*: Reviewer độc lập (Claude) chạy kiểm tra hộp đen CLI trong `docs/proof/phase-2/review-blackbox-A.md` và đối chiếu công thức vật lý.
+  - *Khắc phục*: Đổi `src/core/physics.ts` sang tích phân chính xác `y += vy·dt + 0.5·g·dt²`, rồi `vy += g·dt`, đồng thời siết chặt assertion trong `tests/contract/cases/FR2-004-jump-dash-fall.test.ts` kiểm tra đỉnh `1.225 m` (tick 21) và chạm đất đúng tick 42.
+- **Lỗi 2: Test `FR-010-end-priority.test.ts` cũ vô tình pass nhầm dưới luật mới**:
+  - *Hiện tượng*: Khi thắp đèn L1 tại `(0,0,0)` ở Bước 5, vùng an toàn 6m đẩy shade ra ở Bước 6 nên shade không gây hit ở Bước 9, làm test cũ vẫn ra `won` dù luật mới ưu tiên `no_flames > won`.
+  - *Phát hiện*: Kiểm tra lại kịch bản khi rà hồi quy T014.
+  - *Khắc phục*: Đổi kịch bản test sang tình huống player thực sự mất lửa cuối (rơi `Y < -10`) trong cùng tick 5 đèn đã sáng để kiểm chứng đúng ưu tiên `no_flames > won/all_lit` của Ticket-02.
+
+## 4. Ước tính Token Phase 2 (tính đến hết Nhóm A, B, D)
+> TODO người làm: cập nhật số liệu thực tế từ thống kê phiên Codex / Antigravity / Claude.
+- **Spec-Kit & Review độc lập (Codex + Claude)**: ~55.000 tokens
+- **Implementation Nhóm A + B + D + Web polish (Antigravity)**: ~110.000 tokens
+- **Tổng ước tính Phase 2 (chưa gồm Nhóm C)**: ~165.000 tokens.

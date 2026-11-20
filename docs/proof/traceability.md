@@ -30,3 +30,46 @@ Báo cáo đánh giá độc lập: xem chi tiết tại [review-blackbox.md](ph
 | **FR-062** | Bằng chứng kiểm thử trong docs/proof/ | Verify runner | `docs/proof/phase-1/` | **ĐẠT** |
 | **FR-063** | Harness AGENTS.md, skill, hook, CI | Repo root | `AGENTS.md`, `.githooks/`, `.github/` | **ĐẠT** |
 | **FR-064** | Ghi chép nhật ký, giả định, LICENSE | Tài liệu repo | `docs/notes/`, `LICENSE`, `CREDITS.md` | **ĐẠT** |
+
+---
+
+# Ma trận Truy vết Yêu cầu (Traceability Matrix) — Phase 2 (Ba hòn đảo · Contract v1.1)
+
+Báo cáo đánh giá hộp đen độc lập:
+- Nhóm A: [review-blackbox-A.md](phase-2/review-blackbox-A.md)
+- Nhóm B: [review-blackbox-B.md](phase-2/review-blackbox-B.md)
+- Log chạy thật & SHA-256 3 Đêm: [test.log](phase-2/test.log), [determinism-sha256.txt](phase-2/determinism-sha256.txt), [perf.md](phase-2/perf.md)
+
+| Mã FR2 | Yêu cầu tóm tắt | Cách kiểm chứng | File kiểm chứng / Bằng chứng thật | Kết quả |
+|---|---|---|---|---|
+| **FR2-001** | Thứ tự tick đúng 12 bước Ticket-02 | Contract CLI test + Review A | `tests/contract/cases/FR2-*.test.ts`, `phase-2/review-blackbox-A.md` | **ĐẠT** |
+| **FR2-002** | Pause/Resume (tick tăng, sim_tick & timer đứng) | Contract CLI test + Review B | `tests/contract/cases/FR2-002-pause.test.ts`, `phase-2/review-blackbox-B.md` | **ĐẠT** |
+| **FR2-003** | Di chuyển 6.0 m/s (bùa 7.2), facing +Z | Contract CLI test | `tests/contract/cases/FR2-044-charm.test.ts` | **ĐẠT** |
+| **FR2-004** | Nhảy vy=7, g=-20 (đỉnh 1.225m, chạm đất tick 42) | Contract CLI test + Review B | `tests/contract/cases/FR2-004-jump-dash-fall.test.ts`, `phase-2/review-blackbox-B.md` | **ĐẠT** |
+| **FR2-005** | Lướt 14 m/s 12 tick, giữ Y, cd 90 tick | Contract CLI test | `tests/contract/cases/FR2-004-jump-dash-fall.test.ts` | **ĐẠT** |
+| **FR2-006** | Rơi Y<-10 bỏ qua bất tử, chờ 60 tick hồi sinh + bất tử 90 | Contract CLI test | `tests/contract/cases/FR2-004-jump-dash-fall.test.ts` | **ĐẠT** |
+| **FR2-010** | Nhặt XZ ≤ 1.0 & chênh cao ≤ 1.5, đầy 10 không nhặt | Contract CLI test | `tests/contract/cases/FR2-012-deposit-score.test.ts`, `FR-003-capacity.test.ts` | **ĐẠT** |
+| **FR2-011** | 20 mote ban đầu trên điểm cố định, bù 240k, trần 30 | Contract CLI test | `tests/contract/cases/FR2-052-snapshot.test.ts`, `FR-003-replenish.test.ts` | **ĐẠT** |
+| **FR2-012** | Nạp đèn cost 10, interact 2.0m, +10/mote nạp, +100 thắp | Contract CLI test | `tests/contract/cases/FR2-012-deposit-score.test.ts` | **ĐẠT** |
+| **FR2-013** | Thưởng thắng `floor(time_left)*2 + 50*flames` | Contract CLI test | `tests/contract/cases/FR-010-all-lit.test.ts` | **ĐẠT** |
+| **FR2-014** | Ưu tiên kết thúc `no_flames > won/all_lit > dawn` | Contract CLI test | `tests/contract/cases/FR-010-end-priority.test.ts` | **ĐẠT** |
+| **FR2-020** | Shade sinh 2 lúc tick 300, +1 mỗi 480/420/360 tick | Contract CLI test | `tests/contract/cases/FR2-020-shades.test.ts`, `FR-004-spawn.test.ts` | **ĐẠT** |
+| **FR2-021** | 5 trạng thái (`spawning/wander/chase/recoil/stunned`), 12m/18m | Contract CLI test | `tests/contract/cases/FR2-020-shades.test.ts` | **ĐẠT** |
+| **FR2-022** | Chạm gây recoil 2m/60 tick, drop vành 1.5–2.5m TTL 480 | Contract CLI test | `tests/contract/cases/FR2-022-hit-drop.test.ts` | **ĐẠT** |
+| **FR2-023** | Vùng an toàn 6m, đẩy shade trong tối đa 30 tick không hit | Contract CLI test | `tests/contract/cases/FR2-020-shades.test.ts`, `FR-030-safe-radius.test.ts` | **ĐẠT** |
+| **FR2-024** | Pulse 3D từ chân+0.8, r=5m, 120 tick, đẩy 4m/15 tick, +5/con | Contract CLI test | `tests/contract/cases/FR2-024-pulse-score.test.ts` | **ĐẠT** |
+| **FR2-030** | Bản đồ Đêm 1 chuẩn hóa (đèn, r12/r33/r37, góc cos/sin, rơi r40) | Contract CLI test | `tests/contract/cases/FR2-030-night1-map.test.ts` | **ĐẠT** |
+| **FR2-031** | Bản đồ Đêm 2 (2 đảo, cầu tre, 2 bục nhảy, 6 đèn) | Contract CLI test + Review B | `tests/contract/cases/FR2-031-night2.test.ts`, `phase-2/review-blackbox-B.md` | **ĐẠT** |
+| **FR2-032** | Bản đồ Đêm 3 (3 tầng, vách, dốc 30°/150°, bục, tháp r2, 7 đèn) | Contract CLI test + Review B | `tests/contract/cases/FR2-032-night3.test.ts`, `phase-2/review-blackbox-B.md` | **ĐẠT** |
+| **FR2-033** | Gió Đêm 3 (1800k, 300 tick, đẩy 2 m/s, hướng PRNG) | Contract CLI test | `tests/contract/cases/FR2-033-wind.test.ts` | **ĐẠT** |
+| **FR2-040..043** | Gió Lạc (spawn 1200k, idle/chase/flee/removed, cướp, pulse thả) | Contract CLI test + Review B | `tests/contract/cases/FR2-040-drifter.test.ts`, `FR2-043-drifter-pulse.test.ts` | **ĐẠT** |
+| **FR2-044** | Bùa Gió (600 tick, 7.2 m/s, dash không cd, hồi 2700 tick) | Contract CLI test + Review B | `tests/contract/cases/FR2-044-charm.test.ts` | **ĐẠT** |
+| **FR2-050..055** | Contract v1.1 (`game.contract.json`, `--night 1|2|3`, snapshot/scenario/event) | Contract CLI test + Verify | `tests/contract/cases/FR2-05*.test.ts`, `phase-2/determinism-sha256.txt` | **ĐẠT** |
+| **FR2-056** | Headless 21.600 tick ≤ 30 giây | Benchmark chạy thật | `docs/proof/phase-2/perf.md` (~213 ms) | **ĐẠT** |
+| **FR2-057** | Phần web/sáng tạo không đổi JSONL (so SHA-256) | Verify SHA-256 | `docs/proof/phase-2/determinism-sha256.txt` | **ĐẠT** |
+| **FR2-060** | Web: Menu → giới thiệu → 3 Đêm → Bình Minh / tổng điểm | Chơi thử + clip | Chưa triển khai Nhóm C | **CHƯA ĐẠT** |
+| **FR2-061** | Web: Pause menu (Esc/P) + Cài đặt lưu localStorage | Chơi thử + clip | Chưa triển khai Nhóm C | **CHƯA ĐẠT** |
+| **FR2-062** | Web: Âm thanh WebAudio (nhạc nền + 10 hiệu ứng) | Chơi thử + clip có tiếng | Chưa triển khai Nhóm C | **CHƯA ĐẠT** |
+| **FR2-063** | Web: HUD đầy đủ theo bố cục Ticket-02 (mm:ss đỏ, 10 ô, nhắc E, mũi tên) | Chơi thử + ảnh chụp | Chưa triển khai Nhóm C | **CHƯA ĐẠT** |
+| **FR2-064** | Web: Bảng màu chuẩn ±10%/kênh + ambient `0.15 + 0.55 × tỉ lệ` | Đo màu + ảnh chụp | Chưa triển khai Nhóm C | **CHƯA ĐẠT** |
+| **FR2-065** | Web: ≥ 30 FPS trung bình 60s ở 1280×720 | Đo bộ đếm FPS | Chưa triển khai Nhóm C (`docs/proof/phase-2/perf.md`) | **CHƯA ĐẠT** |
