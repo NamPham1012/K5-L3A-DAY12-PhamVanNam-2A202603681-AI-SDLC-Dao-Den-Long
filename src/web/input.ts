@@ -5,12 +5,23 @@ export class InputManager {
   public yawDeg: number = 0;
   private isPointerLocked: boolean = false;
   public resetTriggered: boolean = false;
+  private pausePulsePending: boolean = false;
+  private pauseWasSent: boolean = false;
+  private domElement: HTMLElement;
+  public activeGameplay: boolean = false;
 
   constructor(domElement: HTMLElement) {
+    this.domElement = domElement;
+
     window.addEventListener('keydown', (e) => {
+      if (!this.activeGameplay) return;
       this.keys.add(e.code);
+
       if (e.code === 'KeyR') {
         this.resetTriggered = true;
+      }
+      if ((e.code === 'KeyP' || e.code === 'Escape') && !e.repeat) {
+        this.requestPauseToggle();
       }
     });
 
@@ -19,7 +30,7 @@ export class InputManager {
     });
 
     domElement.addEventListener('click', () => {
-      if (!this.isPointerLocked) {
+      if (this.activeGameplay && !this.isPointerLocked) {
         domElement.requestPointerLock?.();
       }
     });
@@ -29,11 +40,28 @@ export class InputManager {
     });
 
     document.addEventListener('mousemove', (e) => {
-      if (this.isPointerLocked) {
+      if (this.activeGameplay && this.isPointerLocked) {
         // Giữ nguyên chiều xoay chuột
         this.yawDeg -= e.movementX * 0.15;
       }
     });
+  }
+
+  public requestPauseToggle(): void {
+    this.pausePulsePending = true;
+  }
+
+  public releasePointerLock(): void {
+    if (document.pointerLockElement === this.domElement) {
+      document.exitPointerLock?.();
+    }
+  }
+
+  public clearKeys(): void {
+    this.keys.clear();
+    this.pausePulsePending = false;
+    this.pauseWasSent = false;
+    this.resetTriggered = false;
   }
 
   public pollInput(): InputState {
@@ -61,6 +89,17 @@ export class InputManager {
     const jump = this.keys.has('Space');
     const interact = this.keys.has('KeyE');
     const pulse = this.keys.has('KeyQ');
+    const dash = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
+
+    // Gửi cạnh lên 1 tick cho input.pause rồi tự nhả false ở tick sau
+    let pause = false;
+    if (this.pausePulsePending && !this.pauseWasSent) {
+      pause = true;
+      this.pausePulsePending = false;
+      this.pauseWasSent = true;
+    } else {
+      this.pauseWasSent = false;
+    }
 
     return {
       move,
@@ -68,6 +107,8 @@ export class InputManager {
       jump,
       interact,
       pulse,
+      dash,
+      pause,
     };
   }
 
