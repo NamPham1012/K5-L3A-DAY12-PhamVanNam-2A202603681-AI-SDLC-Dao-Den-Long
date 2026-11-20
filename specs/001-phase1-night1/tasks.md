@@ -23,40 +23,40 @@ description: "Nhiệm vụ triển khai Phase 1 — Đêm 1 · Đảo Bến"
 
 **Kiểm chứng độc lập US1**: scenario tắt sinh ngẫu nhiên và inputs rỗng, 120 tick → 13 snapshot, vị trí không đổi, `end.ticks=120`; input sai mã 2; hai lần cùng đầu vào giống byte.
 
-- [ ] T007 [US1] Tạo `src/core/tuning.ts`, `game.contract.json` với tuning duy nhất, lệnh build/run/headless theo plan và team thật; tạo `tests/contract/cases/FR-061-tuning.test.ts` đối chiếu mọi trường tuning với runtime. Kiểm chứng: `npm run contract -- FR-061-tuning`.
-- [ ] T008 [P] [US1] Tạo `src/core/rng.ts` mulberry32 có seed và `tests/unit/rng.test.ts` xác nhận chuỗi lặp lại, độc lập với `Math.random`; kiểm chứng: `npm test -- rng`.
-- [ ] T009 [US1] Tạo `src/core/entities.ts`, `src/core/world.ts` với quan hệ và các trường ràng buộc theo [data-model.md](data-model.md): `World.tick`, `World.time_left_s`, `World.state`, `Player.pos`, `Player.carried`, `Player.flames`, `Mote.id`, `Mote.pos`, `Mote.active`, `Lantern.id`, `Lantern.deposited`, `Lantern.lit`, `Shade.id`, `Shade.state`, `Input state.move`; PRNG và bộ đếm thuộc world. Kiểm chứng: `npm test -- world` với `tests/unit/world.test.ts`.
-- [ ] T010 [P] [US1] Tạo từng case `tests/contract/cases/FR-040-idle.test.ts`, `FR-044-invalid-input.test.ts`, `FR-040-determinism.test.ts` cho tick 0–120, input/JSON lỗi mã 2, so byte hai lần; kiểm chứng: `npm run contract -- FR-040` và `npm run contract -- FR-044`.
-- [ ] T011 [US1] Tạo `src/headless/inputs.ts`, `src/headless/scenario.ts` và `tests/unit/parsers.test.ts`: validate schema, giữ giá trị vắng, tick tăng nghiêm ngặt, scenario theo `contracts/inputs-scenario.md`, lỗi mã 2; kiểm chứng: `npm test -- parsers`.
-- [ ] T012 [US1] Tạo `src/headless/jsonl.ts`, `src/headless/cli.ts`, `tests/contract/runner.test.ts` với cú pháp/exit code contract, tick 0, event trước snapshot, end cuối, dừng khi kết thúc; kiểm chứng: `npm run build` và `npm run contract -- FR-040`.
+- [x] T007 [US1] Tạo `src/core/tuning.ts`, `game.contract.json` với tuning duy nhất, lệnh build/run/headless theo plan và team thật; tạo `tests/contract/cases/FR-061-tuning.test.ts` đối chiếu mọi trường tuning với runtime. Kiểm chứng: `npm run contract -- FR-061-tuning`.
+- [x] T008 [P] [US1] Tạo `src/core/rng.ts` mulberry32 có seed và `tests/unit/rng.test.ts` xác nhận chuỗi lặp lại, độc lập với `Math.random`; kiểm chứng: `npm test -- rng`.
+- [x] T009 [US1] Tạo `src/core/entities.ts`, `src/core/world.ts` với quan hệ và các trường ràng buộc theo [data-model.md](data-model.md): `World.tick`, `World.time_left_s`, `World.state`, `Player.pos`, `Player.carried`, `Player.flames`, `Mote.id`, `Mote.pos`, `Mote.active`, `Lantern.id`, `Lantern.deposited`, `Lantern.lit`, `Shade.id`, `Shade.state`, `Input state.move`; PRNG và bộ đếm thuộc world. Kiểm chứng: `npm test -- world` với `tests/unit/world.test.ts`.
+- [x] T010 [P] [US1] Tạo từng case `tests/contract/cases/FR-040-idle.test.ts`, `FR-044-invalid-input.test.ts`, `FR-040-determinism.test.ts` cho tick 0–120, input/JSON lỗi mã 2, so byte hai lần; kiểm chứng: `npm run contract -- FR-040` và `npm run contract -- FR-044`.
+- [x] T011 [US1] Tạo `src/headless/inputs.ts`, `src/headless/scenario.ts` và `tests/unit/parsers.test.ts`: validate schema, giữ giá trị vắng, tick tăng nghiêm ngặt, scenario theo `contracts/inputs-scenario.md`, lỗi mã 2; kiểm chứng: `npm test -- parsers`.
+- [x] T012 [US1] Tạo `src/headless/jsonl.ts`, `src/headless/cli.ts`, `tests/contract/runner.test.ts` với cú pháp/exit code contract, tick 0, event trước snapshot, end cuối, dừng khi kết thúc; kiểm chứng: `npm run build` và `npm run contract -- FR-040`.
 
 ### Thu thập và thắp đèn — US2 (P1)
 
 **Kiểm chứng độc lập US2**: scenario đặt mote và L1 gần người chơi, nạp còn thiếu một; JSONL tick 1 lần lượt có `mote_picked`, `deposit`, `lantern_lit`.
 
-- [ ] T013 [P] [US2] Tạo các case riêng `tests/contract/cases/FR-003-pickup-deposit.test.ts`, `FR-003-capacity.test.ts`, `FR-010-interact-edge.test.ts`, `FR-003-replenish.test.ts`: nhặt+nạp+thắp, đầy carry, giữ interact, sinh bù tick 119/120/121 và `random_motes=false`. Kiểm chứng: `npm run contract -- FR-003` và `npm run contract -- FR-010`.
-- [ ] T014 [US2] Tạo `src/core/step.ts`, `src/core/motes.ts`, `src/core/lanterns.ts` thực hiện chuyển động, nhảy, nhặt, nạp, tính điểm, spawn theo FR-001–003/010/011/021; lắp thứ tự bước FR-010. Kiểm chứng: `npm test` và các case T013.
+- [x] T013 [P] [US2] Tạo các case riêng `tests/contract/cases/FR-003-pickup-deposit.test.ts`, `FR-003-capacity.test.ts`, `FR-010-interact-edge.test.ts`, `FR-003-replenish.test.ts`: nhặt+nạp+thắp, đầy carry, giữ interact, sinh bù tick 119/120/121 và `random_motes=false`. Kiểm chứng: `npm run contract -- FR-003` và `npm run contract -- FR-010`.
+- [x] T014 [US2] Tạo `src/core/step.ts`, `src/core/motes.ts`, `src/core/lanterns.ts` thực hiện chuyển động, nhảy, nhặt, nạp, tính điểm, spawn theo FR-001–003/010/011/021; lắp thứ tự bước FR-010. Kiểm chứng: `npm test` và các case T013.
 
 ### Bóng Mực và sát thương — US3 (P1)
 
 **Kiểm chứng độc lập US3**: một shade chạm player có một flame → `player_hit` rồi `game_over lost/no_flames` tick 1; thêm scenario xác nhận bất tử và vùng an toàn.
 
-- [ ] T015 [P] [US3] Tạo các case riêng `tests/contract/cases/FR-031-hit-invuln.test.ts`, `FR-030-safe-radius.test.ts`, `FR-032-drop.test.ts`, `FR-004-spawn.test.ts` xác nhận va chạm/bất tử, safe_radius đèn đã thắp, rơi vòng 3 m, hai shade ban đầu và sinh tick 1800 cùng giới hạn 6; kiểm chứng: `npm run contract -- FR-03` và `npm run contract -- FR-004`.
-- [ ] T016 [US3] Tạo `src/core/shades.ts`, `src/core/damage.ts` và tích hợp vào `src/core/step.ts` để chase, vùng an toàn, trúng đòn, rơi, bất tử và sinh shade theo FR-004/030–032. Kiểm chứng: `npm test` và các case T015.
+- [x] T015 [P] [US3] Tạo các case riêng `tests/contract/cases/FR-031-hit-invuln.test.ts`, `FR-030-safe-radius.test.ts`, `FR-032-drop.test.ts`, `FR-004-spawn.test.ts` xác nhận va chạm/bất tử, safe_radius đèn đã thắp, rơi vòng 3 m, hai shade ban đầu và sinh tick 1800 cùng giới hạn 6; kiểm chứng: `npm run contract -- FR-03` và `npm run contract -- FR-004`.
+- [x] T016 [US3] Tạo `src/core/shades.ts`, `src/core/damage.ts` và tích hợp vào `src/core/step.ts` để chase, vùng an toàn, trúng đòn, rơi, bất tử và sinh shade theo FR-004/030–032. Kiểm chứng: `npm test` và các case T015.
 
 ### Tỏa sáng — US4 (P2)
 
 **Kiểm chứng độc lập US4**: shade trong pulse_radius, carried bằng pulse_cost; tick 1 có pulse chứa S1, carried 0, S1 stunned và không có player_hit.
 
-- [ ] T017 [P] [US4] Tạo các case riêng `tests/contract/cases/FR-010-pulse-enough.test.ts`, `FR-010-pulse-insufficient.test.ts`, `FR-010-pulse-cooldown.test.ts` xác nhận chi phí, choáng/đẩy/điểm, không đủ và hồi chiêu; kiểm chứng: `npm run contract -- pulse`.
-- [ ] T018 [US4] Tạo `src/core/pulse.ts` và kết nối `src/core/step.ts` để xử lý pulse cạnh lên trước va chạm, đúng bán kính, điểm và hồi chiêu; kiểm chứng: `npm run contract -- pulse`.
+- [x] T017 [P] [US4] Tạo các case riêng `tests/contract/cases/FR-010-pulse-enough.test.ts`, `FR-010-pulse-insufficient.test.ts`, `FR-010-pulse-cooldown.test.ts` xác nhận chi phí, choáng/đẩy/điểm, không đủ và hồi chiêu; kiểm chứng: `npm run contract -- pulse`.
+- [x] T018 [US4] Tạo `src/core/pulse.ts` và kết nối `src/core/step.ts` để xử lý pulse cạnh lên trước va chạm, đúng bán kính, điểm và hồi chiêu; kiểm chứng: `npm run contract -- pulse`.
 
 ### Kết thúc, hợp đồng và cổng MVP
 
-- [ ] T019 [P] [US2] Tạo case riêng `tests/contract/cases/FR-010-all-lit.test.ts` kiểm tra đèn dựng sẵn không cộng điểm, thắng tick 1 và thưởng thắng; kiểm chứng: `npm run contract -- all-lit`.
-- [ ] T020 [P] [US3] Tạo case riêng `tests/contract/cases/FR-010-no-flames.test.ts`, `FR-010-dawn.test.ts`, `FR-010-end-priority.test.ts` kiểm tra thua hết lửa, hết giờ và thứ tự ưu tiên; kiểm chứng: `npm run contract -- FR-010`.
-- [ ] T021 [US1] Hoàn thiện `src/core/step.ts`, `src/core/world.ts` và `src/headless/cli.ts` cho điều kiện thắng/thua, thời gian, event/end và thứ tự cố định; kiểm chứng: `npm run build && npm test`.
-- [ ] T022 [US1] Chạy toàn bộ các case độc lập và unit tại `tests/contract/`, `tests/unit/`, xác nhận tối thiểu 15 scenario, tuning khớp và test so byte; kiểm chứng: `npm run build && npm test`. **Cổng bắt buộc**: mọi test xanh trước bất kỳ task nhóm 3.
+- [x] T019 [P] [US2] Tạo case riêng `tests/contract/cases/FR-010-all-lit.test.ts` kiểm tra đèn dựng sẵn không cộng điểm, thắng tick 1 và thưởng thắng; kiểm chứng: `npm run contract -- all-lit`.
+- [x] T020 [P] [US3] Tạo case riêng `tests/contract/cases/FR-010-no-flames.test.ts`, `FR-010-dawn.test.ts`, `FR-010-end-priority.test.ts` kiểm tra thua hết lửa, hết giờ và thứ tự ưu tiên; kiểm chứng: `npm run contract -- FR-010`.
+- [x] T021 [US1] Hoàn thiện `src/core/step.ts`, `src/core/world.ts` và `src/headless/cli.ts` cho điều kiện thắng/thua, thời gian, event/end và thứ tự cố định; kiểm chứng: `npm run build && npm test`.
+- [x] T022 [US1] Chạy toàn bộ các case độc lập và unit tại `tests/contract/`, `tests/unit/`, xác nhận tối thiểu 15 scenario, tuning khớp và test so byte; kiểm chứng: `npm run build && npm test`. **Cổng bắt buộc**: mọi test xanh trước bất kỳ task nhóm 3.
 
 ## Nhóm 3 — Web (sau T022) — US5 (P2)
 

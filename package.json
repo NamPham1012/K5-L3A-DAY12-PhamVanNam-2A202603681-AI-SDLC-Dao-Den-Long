@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node esbuild.config.mjs",
-    "test": "vitest run",
-    "contract": "vitest run tests/contract",
+    "test": "npm run build && vitest run",
+    "contract": "npm run build && vitest run tests/contract",
     "verify": "node scripts/verify.mjs",
     "play": "vite",
     "prepare": "node scripts/install-hooks.mjs"
